@@ -1,0 +1,24 @@
+FrontEnd/.DS_Store
+FrontEnd/node_modules
+FrontEnd/dist
+
+# local env files
+FrontEnd/.env.local
+FrontEnd/.env.*.local
+
+# Log files
+FrontEnd/npm-debug.log*
+FrontEnd/yarn-debug.log*
+FrontEnd/yarn-error.log*
+FrontEnd/pnpm-debug.log*
+
+# Editor directories and files
+FrontEnd/.idea
+FrontEnd/.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+FrontEnd/package-lock.json
