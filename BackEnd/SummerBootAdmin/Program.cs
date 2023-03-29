@@ -1,4 +1,6 @@
+using MySql.Data.MySqlClient;
 using SummerBoot.Core;
+using SummerBoot.Repository.Generator;
 
 namespace SummerBootAdmin
 {
@@ -19,7 +21,12 @@ namespace SummerBootAdmin
 
             builder.Services.AddSummerBootRepository(it =>
             {
-                it.AddDatabaseUnit<>();
+                var connectionString = configuration.GetValue("");
+                it.AddDatabaseUnit<MySqlConnection,IUnitOfWork1>(connectionString, x =>
+                {
+                    x.BindDbGeneratorType<IDbGenerator1>();
+                    x.BindRepositorysWithAttribute<>();
+                });
             });
 
 
