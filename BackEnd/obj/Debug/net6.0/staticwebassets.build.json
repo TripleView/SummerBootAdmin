@@ -1,0 +1,23 @@
+{
+  "Version": 1,
+  "Hash": "lSD3zlrMQlNAUGSVBjjRUgcxz5XLPsZp2Dk5iZWtjuw=",
+  "Source": "SummerBootAdmin",
+  "BasePath": "_content/SummerBootAdmin",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "C:\\Users\\HeZP\\Desktop\\code\\sb3\\SummerBoot\\SummerBoot\\SummerBoot.csproj",
+      "Version": 2,
+      "Source": "SummerBoot",
+      "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "Configuration=Debug;Platform=AnyCPU;TargetFramework=net6.0",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;RuntimeIdentifier;SelfContained",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "Configuration=Debug;Platform=AnyCPU;TargetFramework=net6.0",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;RuntimeIdentifier;SelfContained"
+    }
+  ],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

@@ -5,6 +5,7 @@
 //全局可使用 this.$CONFIG.MY_KEY 访问
 
 export default {
+	MY_API_URL: process.env.VUE_APP_MY_API_BASEURL,
 	//是否显示第三方授权登录
 	MY_SHOW_LOGIN_OAUTH: true
 }
