@@ -16,9 +16,4 @@ FrontEnd/pnpm-debug.log*
 FrontEnd/.idea
 FrontEnd/.vscode
 *.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
 FrontEnd/package-lock.json
