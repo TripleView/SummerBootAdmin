@@ -206,7 +206,8 @@
 					if(this.hidePagination){
 						this.tableData = response.data || [];
 					}else{
-						this.tableData = response.rows || [];
+						console.log("表格返回值",response)
+						this.tableData =response.data.data|| response.rows || [];
 					}
 					this.total = response.total || 0;
 					this.summary = response.summary || {};

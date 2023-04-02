@@ -42,12 +42,12 @@
 						</template>
 					</el-table-column>
 					<el-table-column label="名称" prop="name" width="150"></el-table-column>
-					<el-table-column label="键值" prop="key" width="150"></el-table-column>
-					<el-table-column label="是否有效" prop="yx" width="100">
+					<el-table-column label="键值" prop="value" width="150"></el-table-column>
+					<!-- <el-table-column label="是否有效" prop="yx" width="100">
 						<template #default="scope">
 							<el-switch v-model="scope.row.yx" @change="changeSwitch($event, scope.row)" :loading="scope.row.$switch_yx" active-value="1" inactive-value="0"></el-switch>
 						</template>
-					</el-table-column>
+					</el-table-column> -->
 					<el-table-column label="操作" fixed="right" align="right" width="120">
 						<template #default="scope">
 							<el-button-group>
@@ -86,7 +86,8 @@
 			return {
 				dialog: {
 					dic: false,
-					info: false
+					info: false,
+					list:false
 				},
 				showDicloading: true,
 				dicList: [],
@@ -117,13 +118,15 @@
 				//获取第一个节点,设置选中 & 加载明细列表
 				var firstNode = this.dicList[0];
 				if(firstNode){
+					alert(789)
 					this.$nextTick(() => {
 						this.$refs.dic.setCurrentKey(firstNode.id)
 					})
 					this.listApiParams = {
-						code: firstNode.code
+						dictionaryId: firstNode.dictionaryId
 					}
-					this.listApi = this.$API.system.dic.list;
+					// alert(123)
+					this.listApi = this.$API.system.dic.listItem;
 				}
 			},
 			//树过滤
@@ -144,15 +147,15 @@
 				this.dialog.dic = true
 				this.$nextTick(() => {
 					var editNode = this.$refs.dic.getNode(data.id);
-					var editNodeParentId =  editNode.level==1?undefined:editNode.parent.data.id
-					data.parentId = editNodeParentId
+					data.parentId =  editNode.parentId
 					this.$refs.dicDialog.open('edit').setData(data)
 				})
 			},
 			//树点击事件
 			dicClick(data){
+		
 				this.$refs.table.reload({
-					code: data.code
+					dictionaryId: data.dictionaryId
 				})
 			},
 			//删除树
@@ -205,9 +208,11 @@
 				this.dialog.list = true
 				this.$nextTick(() => {
 					var dicCurrentKey = this.$refs.dic.getCurrentKey();
+					
 					const data = {
-						dic: dicCurrentKey
+						dictionaryId: dicCurrentKey
 					}
+					console.log("字典值为",data)
 					this.$refs.listDialog.open().setData(data)
 				})
 			},
@@ -282,31 +287,34 @@
 			},
 			//本地更新数据
 			handleDicSuccess(data, mode){
-				if(mode=='add'){
-					data.id = new Date().getTime()
-					if(this.dicList.length > 0){
-						this.$refs.table.upData({
-							code: data.code
-						})
-					}else{
-						this.listApiParams = {
-							code: data.code
-						}
-						this.listApi = this.$API.dic.info;
-					}
-					this.$refs.dic.append(data, data.parentId[0])
-					this.$refs.dic.setCurrentKey(data.id)
-				}else if(mode=='edit'){
-					var editNode = this.$refs.dic.getNode(data.id);
-					//判断是否移动？
-					var editNodeParentId =  editNode.level==1?undefined:editNode.parent.data.id
-					if(editNodeParentId != data.parentId){
-						var obj = editNode.data;
-						this.$refs.dic.remove(data.id)
-						this.$refs.dic.append(obj, data.parentId[0])
-					}
-					Object.assign(editNode.data, data)
-				}
+				console.log(data,mode)
+				this.getDic();
+				return;
+				// if(mode=='add'){
+				// 	data.id = new Date().getTime()
+				// 	if(this.dicList.length > 0){
+				// 		this.$refs.table.upData({
+				// 			code: data.code
+				// 		})
+				// 	}else{
+				// 		this.listApiParams = {
+				// 			code: data.code
+				// 		}
+				// 		this.listApi = this.$API.dic.info;
+				// 	}
+				// 	this.$refs.dic.append(data, data.parentId[0])
+				// 	this.$refs.dic.setCurrentKey(data.id)
+				// }else if(mode=='edit'){
+				// 	var editNode = this.$refs.dic.getNode(data.id);
+				// 	//判断是否移动？
+				// 	var editNodeParentId =  editNode.level==1?undefined:editNode.parent.data.id
+				// 	if(editNodeParentId != data.parentId){
+				// 		var obj = editNode.data;
+				// 		this.$refs.dic.remove(data.id)
+				// 		this.$refs.dic.append(obj, data.parentId[0])
+				// 	}
+				// 	Object.assign(editNode.data, data)
+				// }
 			},
 			//本地更新数据
 			handleListSuccess(data, mode){

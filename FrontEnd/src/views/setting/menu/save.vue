@@ -34,8 +34,8 @@
 					<el-form-item label="重定向" prop="redirect">
 						<el-input v-model="form.redirect" clearable placeholder=""></el-input>
 					</el-form-item>
-					<el-form-item label="菜单高亮" prop="active">
-						<el-input v-model="form.active" clearable placeholder=""></el-input>
+					<el-form-item label="菜单高亮" prop="menuActive">
+						<el-input v-model="form.menuActive" clearable placeholder=""></el-input>
 						<div class="el-form-item-msg">子节点或详情页需要高亮的上级菜单路由地址</div>
 					</el-form-item>
 					<el-form-item label="视图" prop="component">
@@ -107,7 +107,7 @@
 					meta:{
 						title: "",
 						icon: "",
-						active: "",
+						menuActive: "",
 						color: "",
 						type: "menu",
 						fullpage: false,
@@ -167,12 +167,12 @@
 			//保存
 			async save(){
 				this.loading = true
-				var res = await this.$API.demo.post.post(this.form)
+				var res = await this.$API.system.menu.updateMenu.post(this.form)
 				this.loading = false
-				if(res.code == 200){
+				if(res.code == 20000){
 					this.$message.success("保存成功")
 				}else{
-					this.$message.warning(res.message)
+					this.$message.warning(res.msg)
 				}
 			},
 			//表单注入数据

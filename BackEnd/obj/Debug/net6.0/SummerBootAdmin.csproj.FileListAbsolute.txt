@@ -46,3 +46,8 @@ D:\code\SummerBootAdmin\BackEnd\obj\Debug\net6.0\refint\SummerBootAdmin.dll
 D:\code\SummerBootAdmin\BackEnd\obj\Debug\net6.0\SummerBootAdmin.pdb
 D:\code\SummerBootAdmin\BackEnd\obj\Debug\net6.0\SummerBootAdmin.genruntimeconfig.cache
 D:\code\SummerBootAdmin\BackEnd\obj\Debug\net6.0\ref\SummerBootAdmin.dll
+D:\code\SummerBootAdmin\BackEnd\bin\Debug\net6.0\Microsoft.AspNetCore.JsonPatch.dll
+D:\code\SummerBootAdmin\BackEnd\bin\Debug\net6.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+D:\code\SummerBootAdmin\BackEnd\bin\Debug\net6.0\Newtonsoft.Json.Bson.dll
+D:\code\SummerBootAdmin\BackEnd\bin\Debug\net6.0\AutoMapper.dll
+D:\code\SummerBootAdmin\BackEnd\bin\Debug\net6.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll

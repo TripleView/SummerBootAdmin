@@ -69,12 +69,14 @@
 			async getMenu(){
 				this.menuloading = true
 				var res = await this.$API.system.menu.list.get();
+				console.log(res)
 				this.menuloading = false
 				this.menuList = res.data;
 			},
 			//树点击
 			menuClick(data, node){
-				var pid = node.level==1?undefined:node.parent.data.id;
+				// alert(123)
+				var pid = node.parentId;
 				this.$refs.save.setData(data, pid)
 				this.$refs.main.$el.scrollTop = 0
 			},
@@ -103,9 +105,9 @@
 					}
 				}
 				this.menuloading = true
-				var res = await this.$API.demo.post.post(newMenuData)
+				var res = await this.$API.system.menu.addMenu.post(newMenuData)
 				this.menuloading = false
-				newMenuData.id = res.data
+				newMenuData.id = res.data.id
 
 				this.$refs.menu.append(newMenuData, node)
 				this.$refs.menu.setCurrentKey(newMenuData.id)
@@ -133,10 +135,10 @@
 				var reqData = {
 					ids: CheckedNodes.map(item => item.id)
 				}
-				var res = await this.$API.demo.post.post(reqData)
+				var res = await this.$API.system.menu.deleteMenus.post(reqData)
 				this.menuloading = false
 
-				if(res.code == 200){
+				if(res.code == 20000){
 					CheckedNodes.forEach(item => {
 						var node = this.$refs.menu.getNode(item)
 						if(node.isCurrent){

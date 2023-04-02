@@ -78,7 +78,8 @@
 				}
 				//获取token
 				var user = await this.$API.auth.token.post(data)
-				if(user.code == 200){
+				if(user.code == 20000){
+					console.log("进来了")
 					this.$TOOL.cookie.set("TOKEN", user.data.token, {
 						expires: this.form.autologin? 24*60*60 : 0
 					})
@@ -95,7 +96,7 @@
 				}else{
 					menu = await this.$API.demo.menu.get()
 				}
-				if(menu.code == 200){
+				if(menu.code == 20000){
 					if(menu.data.menu.length==0){
 						this.islogin = false
 						this.$alert("当前用户无任何菜单权限，请联系系统管理员", "无权限访问", {

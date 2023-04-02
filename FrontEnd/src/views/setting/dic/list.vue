@@ -1,18 +1,18 @@
 <template>
 	<el-dialog :title="titleMap[mode]" v-model="visible" :width="400" destroy-on-close @closed="$emit('closed')">
 		<el-form :model="form" :rules="rules" ref="dialogForm" label-width="100px" label-position="left">
-			<el-form-item label="所属字典" prop="dic">
-				<el-cascader v-model="form.dic" :options="dic" :props="dicProps" :show-all-levels="false" clearable></el-cascader>
+			<el-form-item label="所属字典" prop="dictionaryId">
+				<el-cascader v-model="form.dictionaryId" :options="dic" :props="dicProps" :show-all-levels="false" clearable></el-cascader>
 			</el-form-item>
 			<el-form-item label="项名称" prop="name">
 				<el-input v-model="form.name" clearable></el-input>
 			</el-form-item>
-			<el-form-item label="键值" prop="key">
-				<el-input v-model="form.key" clearable></el-input>
+			<el-form-item label="键值" prop="value">
+				<el-input v-model="form.value" clearable></el-input>
 			</el-form-item>
-			<el-form-item label="是否有效" prop="yx">
+			<!-- <el-form-item label="是否有效" prop="yx">
 				<el-switch v-model="form.yx" active-value="1" inactive-value="0"></el-switch>
-			</el-form-item>
+			</el-form-item> -->
 		</el-form>
 		<template #footer>
 			<el-button @click="visible=false" >取 消</el-button>
@@ -35,13 +35,13 @@
 				isSaveing: false,
 				form: {
 					id: "",
-					dic: "",
+					dictionaryId: "",
 					name: "",
 					key: "",
-					yx: "1"
+					// yx: "1"
 				},
 				rules: {
-					dic: [
+					dictionaryId: [
 						{required: true, message: '请选择所属字典'}
 					],
 					name: [
@@ -61,7 +61,9 @@
 			}
 		},
 		mounted() {
+			console.log("参数为",this.params)
 			if(this.params){
+				
 				this.form.dic = this.params.code
 			}
 			this.getDic()
@@ -83,9 +85,9 @@
 				this.$refs.dialogForm.validate(async (valid) => {
 					if (valid) {
 						this.isSaveing = true;
-						var res = await this.$API.demo.post.post(this.form);
+						var res = await this.$API.system.dic.addDicItem.post(this.form);
 						this.isSaveing = false;
-						if(res.code == 200){
+						if(res.code == 20000){
 							this.$emit('success', this.form, this.mode)
 							this.visible = false;
 							this.$message.success("操作成功")
@@ -99,9 +101,9 @@
 			setData(data){
 				this.form.id = data.id
 				this.form.name = data.name
-				this.form.key = data.key
-				this.form.yx = data.yx
-				this.form.dic = data.dic
+				this.form.value = data.value
+				// this.form.yx = data.yx
+				this.form.dictionaryId = data.dictionaryId
 			}
 		}
 	}

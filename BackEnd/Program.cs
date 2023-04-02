@@ -1,7 +1,10 @@
 using MySqlConnector;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using SummerBoot.Core;
 using SummerBoot.Repository;
 using SummerBoot.Repository.Generator;
+using SummerBootAdmin.Dto;
 
 namespace SummerBootAdmin
 {
@@ -10,21 +13,30 @@ namespace SummerBootAdmin
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-           
+
             // Add services to the container.
             var configuration = builder.Configuration;
             var url = configuration.GetValue<string>("url");
             builder.WebHost.UseUrls(url);
-            builder.Services.AddControllers();
+            builder.Services.AddControllers(options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true).AddNewtonsoftJson(it =>
+            {
+                //it.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                it.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
+            builder.Services.AddAutoMapper(it =>
+            {
+                it.AddProfile<SummerbootProfile>();
+            });
+            builder.Services.AddCors(it =>
+                it.AddPolicy("all", x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()));
             builder.Services.AddSummerBoot();
             builder.Services.AddSummerBootRepository(it =>
             {
                 var connectionString = configuration.GetValue<string>("mysqlDbConnectionString");
-                it.AddDatabaseUnit<MySqlConnection,IUnitOfWork1>(connectionString, x =>
+                it.AddDatabaseUnit<MySqlConnection, IUnitOfWork1>(connectionString, x =>
                 {
                     x.BindRepositorysWithAttribute<AutoRepository1Attribute>();
                     x.BindDbGeneratorType<IDbGenerator1>();
@@ -32,7 +44,7 @@ namespace SummerBootAdmin
             });
 
             var app = builder.Build();
-
+            app.UseCors("all");
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -41,7 +53,6 @@ namespace SummerBootAdmin
             }
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
