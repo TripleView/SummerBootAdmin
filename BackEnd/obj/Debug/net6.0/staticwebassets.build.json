@@ -1,13 +1,13 @@
 {
   "Version": 1,
-  "Hash": "nlWfXWSP90pKyT9jyfoWKje9w7M/XD330JRzekrQ6H8=",
+  "Hash": "I2sNzb6JDYw21T8aH5GCRQcXj+OapshjVE7w6M/FEuM=",
   "Source": "SummerBootAdmin",
   "BasePath": "_content/SummerBootAdmin",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [
     {
-      "Identity": "D:\\code\\SummerBoot\\SummerBoot\\SummerBoot.csproj",
+      "Identity": "D:\\code\\SummerBootAdmin\\Summerboot\\SummerBoot\\SummerBoot.csproj",
       "Version": 2,
       "Source": "SummerBoot",
       "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",

@@ -17,3 +17,6 @@ FrontEnd/.idea
 FrontEnd/.vscode
 *.suo
 FrontEnd/package-lock.json
+BackEnd/bin
+BackEnd/obj
+BackEnd/.vs

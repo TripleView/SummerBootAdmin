@@ -1,0 +1,3 @@
+[submodule "Summerboot"]
+	path = Summerboot
+	url = https://github.com/TripleView/SummerBoot.git

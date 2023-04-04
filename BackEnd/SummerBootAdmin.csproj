@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\SummerBoot\SummerBoot\SummerBoot.csproj" />
+    <ProjectReference Include="..\Summerboot\SummerBoot\SummerBoot.csproj" />
   </ItemGroup>
 
 </Project>
