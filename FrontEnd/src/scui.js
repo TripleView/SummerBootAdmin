@@ -5,6 +5,7 @@ import http from "./utils/request"
 import { permission, rolePermission } from './utils/permission'
 
 import scTable from './components/scTable'
+import sbTable from './components/sbTable'
 import scTableColumn from './components/scTable/column.js'
 import scFilterBar from './components/scFilterBar'
 import scUpload from './components/scUpload'
@@ -33,6 +34,9 @@ import errorHandler from './utils/errorHandler'
 
 import * as elIcons from '@element-plus/icons-vue'
 import * as scIcons from './assets/icons'
+import Treeselect from 'vue3-treeselect'
+// // import the styles
+import 'vue3-treeselect/dist/vue3-treeselect.css'
 
 export default {
 	install(app) {
@@ -45,7 +49,9 @@ export default {
 		app.config.globalProperties.$ROLE = rolePermission;
 
 		//注册全局组件
+		app.component('treeSelect', Treeselect);
 		app.component('scTable', scTable);
+		app.component('sbTable', sbTable);
 		app.component('scTableColumn', scTableColumn);
 		app.component('scFilterBar', scFilterBar);
 		app.component('scUpload', scUpload);

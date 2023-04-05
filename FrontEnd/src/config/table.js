@@ -19,6 +19,7 @@ export default {
 	},
 	request: {							//请求规定字段
 		page: 'page',					//规定当前分页字段
+		pageNumber: 'pageNumber',
 		pageSize: 'pageSize',			//规定一页条数字段
 		prop: 'prop',					//规定排序字段名字段
 		order: 'order'					//规定排序规格字段

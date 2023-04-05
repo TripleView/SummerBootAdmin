@@ -8,9 +8,10 @@ module.exports = defineConfig({
 
 	// build编译后不生成资源MAP文件
 	productionSourceMap: false,
-
+	lintOnSave: false,
 	//开发服务,build后的生产模式还需nginx代理
 	devServer: {
+		// 
         allowedHosts: 'all',
 		open: false, //运行后自动打开浏览器
 		port: process.env.VUE_APP_PORT, //挂载端口

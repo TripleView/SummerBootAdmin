@@ -62,8 +62,8 @@ export default {
 		listItem: {
 			url: `${config.MY_API_URL}/Dictionary/listItem`,
 			name: "字典明细",
-			get: async function(params){
-				return await http.get(this.url, params);
+			post: async function(params){
+				return await http.post(this.url, params);
 			}
 		},
 		get: {

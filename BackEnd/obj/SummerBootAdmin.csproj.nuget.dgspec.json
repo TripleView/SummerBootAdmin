@@ -10,17 +10,16 @@
         "projectUniqueName": "D:\\code\\SummerBootAdmin\\BackEnd\\SummerBootAdmin.csproj",
         "projectName": "SummerBootAdmin",
         "projectPath": "D:\\code\\SummerBootAdmin\\BackEnd\\SummerBootAdmin.csproj",
-        "packagesPath": "D:\\.nuget",
+        "packagesPath": "C:\\Users\\何泽平\\.nuget\\packages\\",
         "outputPath": "D:\\code\\SummerBootAdmin\\BackEnd\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\HeZP\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\何泽平\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\nuget.config"
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
@@ -96,7 +95,7 @@
         "projectUniqueName": "D:\\code\\SummerBootAdmin\\Summerboot\\SummerBoot\\SummerBoot.csproj",
         "projectName": "SummerBoot",
         "projectPath": "D:\\code\\SummerBootAdmin\\Summerboot\\SummerBoot\\SummerBoot.csproj",
-        "packagesPath": "D:\\.nuget",
+        "packagesPath": "C:\\Users\\何泽平\\.nuget\\packages\\",
         "outputPath": "D:\\code\\SummerBootAdmin\\Summerboot\\SummerBoot\\obj\\",
         "projectStyle": "PackageReference",
         "crossTargeting": true,
@@ -104,10 +103,9 @@
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\HeZP\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\何泽平\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\nuget.config"
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net6.0",

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -15,6 +15,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Summerboot\SummerBoot\SummerBoot.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Dto\Department\" />
+    <Folder Include="Dto\Role\" />
+    <Folder Include="Model\Department\" />
+    <Folder Include="Model\User\" />
   </ItemGroup>
 
 </Project>

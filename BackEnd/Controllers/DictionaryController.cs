@@ -39,7 +39,7 @@ public class DictionaryController : ControllerBase
         var dictionary = mapper.Map<AddDictionaryDto, Dictionary>(dto);
         unitOfWork1.BeginTransaction();
         var dbDictionary = await dictionaryRepository.InsertAsync(dictionary);
-        
+
         unitOfWork1.Commit();
         return ApiResult<Dictionary>.Ok(dbDictionary);
     }
@@ -48,12 +48,14 @@ public class DictionaryController : ControllerBase
     public async Task<ApiResult<DictionaryItem>> AddDictionaryItem([FromBody] AddDictionaryItemDto dto)
     {
         var dictionaryItem = mapper.Map<AddDictionaryItemDto, DictionaryItem>(dto);
+        await CheckDictionaryItem(dictionaryItem, false);
         unitOfWork1.BeginTransaction();
         var dbDictionary = await dictionaryItemRepository.InsertAsync(dictionaryItem);
 
         unitOfWork1.Commit();
         return ApiResult<DictionaryItem>.Ok(dbDictionary);
     }
+
 
     [HttpPost]
     public async Task<ApiResult<Dictionary>> UpdateDictionary([FromBody] Dictionary dictionary)
@@ -65,7 +67,7 @@ public class DictionaryController : ControllerBase
             throw new Exception("要修改的字典不存在");
         }
 
-        await dictionaryRepository.UpdateAsync(dbDictionary);
+        await dictionaryRepository.UpdateAsync(dictionary);
 
         unitOfWork1.Commit();
         return ApiResult<Dictionary>.Ok(dbDictionary);
@@ -81,10 +83,29 @@ public class DictionaryController : ControllerBase
             throw new Exception("要修改的字典项目不存在");
         }
 
-        await dictionaryItemRepository.UpdateAsync(dbDictionaryItem);
+        await CheckDictionaryItem(dictionaryItem, true);
+
+        await dictionaryItemRepository.UpdateAsync(dictionaryItem);
 
         unitOfWork1.Commit();
         return ApiResult<DictionaryItem>.Ok(dbDictionaryItem);
+    }
+
+    private async Task<bool> CheckDictionaryItem(DictionaryItem dictionaryItem, bool isUpdate)
+    {
+        var query = QueryCondition.True<DictionaryItem>();
+        query = query.And(it => it.Name == dictionaryItem.Name);
+        if (isUpdate)
+        {
+            query = query.And(it => it.Id != dictionaryItem.Id);
+        }
+        var dbDictionaryItem = await dictionaryItemRepository.FirstOrDefaultAsync(query);
+        if (dbDictionaryItem != null)
+        {
+            throw new Exception("相同名称的字典项已存在");
+        }
+
+        return true;
     }
 
     [HttpPost]
@@ -115,7 +136,7 @@ public class DictionaryController : ControllerBase
 
         foreach (var id in deleteMenusDto.Ids)
         {
-            await dictionaryItemRepository.DeleteAsync(it=>it.Id==id);
+            await dictionaryItemRepository.DeleteAsync(it => it.Id == id);
         }
         unitOfWork1.Commit();
         return ApiResult<bool>.Ok(true);
@@ -124,7 +145,7 @@ public class DictionaryController : ControllerBase
     private async Task<bool> DeleteDictionarysByRecursion(int dictionaryId)
     {
         await dictionaryRepository.DeleteAsync(it => it.Id == dictionaryId);
-        
+
         var childrenMenus = await dictionaryRepository.Where(it => it.ParentId == dictionaryId).ToListAsync();
         if (childrenMenus.Count == 0)
         {
@@ -148,15 +169,15 @@ public class DictionaryController : ControllerBase
         return ApiResult<List<Dictionary>>.Ok(result);
     }
 
-    [HttpGet]
-    public async Task<ApiResult<Page<DictionaryItem>>> ListItem(int dictionaryId)
+    [HttpPost]
+    public async Task<ApiResult<Page<DictionaryItem>>> ListItem([FromBody] PageQueryDictionaryItemDto dto)
     {
-        var dictionarys = await dictionaryItemRepository.Where(it=>it.DictionaryId== dictionaryId).ToPageAsync();
+        var dictionarys = await dictionaryItemRepository.Where(it => it.DictionaryId == dto.DictionaryId).ToPageAsync(dto);
 
         return ApiResult<Page<DictionaryItem>>.Ok(dictionarys);
     }
 
-    private List<Dictionary> AddDictionarysTrees(List<Dictionary> dictionarys,  int? parentId)
+    private List<Dictionary> AddDictionarysTrees(List<Dictionary> dictionarys, int? parentId)
     {
         var list = dictionarys.Where(it => it.ParentId == parentId).ToList();
         foreach (var dictionary in list)

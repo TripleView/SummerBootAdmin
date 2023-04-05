@@ -23,6 +23,13 @@ namespace SummerBootAdmin
                 //it.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 it.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
+            builder.Services.AddSummerBootMvcExtension(it =>
+            {
+                //是否启用全局错误处理
+                it.UseGlobalExceptionHandle = true;
+                //是否启用参数校验处理
+                it.UseValidateParameterHandle = true;
+            });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
