@@ -38,6 +38,15 @@ public class MenuController : ControllerBase
             await menuMetaRepository.InsertAsync(menu.Meta);
         }
 
+        if (menu.Children != null && menu.Children.Count > 0)
+        {
+            foreach (var menuChild in menu.Children)
+            {
+                menuChild.ParentId = menu.Id;
+                await this.AddMenu(menuChild);
+            }
+        }
+
         unitOfWork1.Commit();
         return ApiResult<Menu>.Ok(dbMenu);
     }
@@ -125,19 +134,12 @@ public class MenuController : ControllerBase
         foreach (var menu in result.Menu)
         {
             await this.AddMenu(menu);
-            if (menu.Children?.Count > 0)
-            {
-                foreach (var childMenu in menu.Children)
-                {
-                    childMenu.ParentId = menu.Id;
-                    await this.AddMenu(childMenu);
-                }
-            }
         }
 
         return true;
 
     }
+
 
     private List<Menu> AddMenuTrees(List<Menu> menus, List<MenuMeta> menuMetas, int? parentId)
     {
