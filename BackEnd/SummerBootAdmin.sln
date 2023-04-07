@@ -5,8 +5,6 @@ VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SummerBootAdmin", "SummerBootAdmin.csproj", "{314213DF-3286-4DE1-9296-85B88659F2DA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SummerBoot", "..\Summerboot\SummerBoot\SummerBoot.csproj", "{A44B8439-C727-4EF7-8B6B-5A4DC9715C86}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{314213DF-3286-4DE1-9296-85B88659F2DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{314213DF-3286-4DE1-9296-85B88659F2DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{314213DF-3286-4DE1-9296-85B88659F2DA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A44B8439-C727-4EF7-8B6B-5A4DC9715C86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A44B8439-C727-4EF7-8B6B-5A4DC9715C86}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A44B8439-C727-4EF7-8B6B-5A4DC9715C86}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A44B8439-C727-4EF7-8B6B-5A4DC9715C86}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -45,8 +45,29 @@ namespace SummerBootAdmin
                 var connectionString = configuration.GetValue<string>("mysqlDbConnectionString");
                 it.AddDatabaseUnit<MySqlConnection, IUnitOfWork1>(connectionString, x =>
                 {
+                    //通过自定义注解批量绑定仓储
                     x.BindRepositorysWithAttribute<AutoRepository1Attribute>();
+                    
+                    //绑定数据库生成接口
                     x.BindDbGeneratorType<IDbGenerator1>();
+
+                    //绑定插入前回调
+                    x.BeforeInsert += entity =>
+                    {
+                        if (entity is BaseEntity baseEntity)
+                        {
+                            baseEntity.CreateOn = DateTime.Now;
+                        }
+                    };
+
+                    //绑定更新前回调
+                    x.BeforeUpdate += entity =>
+                    {
+                        if (entity is BaseEntity baseEntity)
+                        {
+                            baseEntity.LastUpdateOn = DateTime.Now;
+                        }
+                    };
                 });
             });
 
