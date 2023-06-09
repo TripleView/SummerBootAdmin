@@ -11,9 +11,9 @@
 	<div class="scTable" :style="{ 'height': _height }" ref="scTableMain" v-loading="loading">
 		<div class="scTable-table" :style="{ 'height': _table_height }">
 			<el-table v-bind="$attrs" :data="tableData" :row-key="rowKey" :key="toggleIndex" ref="scTable"
-				:height="height == 'auto' ? null : '100%'" :size="config.size" :border="config.border"
-				:stripe="config.stripe" :summary-method="remoteSummary ? remoteSummaryMethod : summaryMethod"
-				@sort-change="sortChange" @filter-change="filterChange">
+				:height="height == 'auto' ? null : '100%'" :size="config.size" :border="config.border" :stripe="config.stripe"
+				:summary-method="remoteSummary ? remoteSummaryMethod : summaryMethod" @sort-change="sortChange"
+				@filter-change="filterChange">
 				<slot></slot>
 				<template v-for="(item, index) in userColumn" :key="index">
 					<el-table-column v-if="!item.hide" :column-key="item.prop" :label="item.label" :prop="item.prop"
@@ -36,10 +36,9 @@
 		<!--:page-sizes="[1, 2, 3, 4]"  -->
 		<div class="scTable-page" v-if="!hidePagination || !hideDo">
 			<div class="scTable-pagination">
-				<el-pagination v-if="!hidePagination" background :small="true"
-					layout="total, sizes, prev, pager, next, jumper" :total="total" :page-sizes="pageSizes"
-					v-model:currentPage="currentPage" @current-change="paginationChange"
-					@update:page-size="pageSizeChange"></el-pagination>
+				<el-pagination v-if="!hidePagination" background :small="true" layout="total, sizes, prev, pager, next, jumper"
+					:total="total" :page-sizes="pageSizes" v-model:currentPage="currentPage" @current-change="paginationChange"
+					@update:page-size="pageSizeChange" :page-size="scPageSize"></el-pagination>
 			</div>
 			<div class="scTable-do" v-if="!hideDo">
 				<el-button v-if="!hideRefresh" @click="refresh" icon="el-icon-refresh" circle
@@ -184,6 +183,7 @@ export default {
 		},
 		//获取数据
 		async getData() {
+			// console.log("行数据", this.pageSize)
 			this.loading = true;
 			var reqData = {
 				[config.request.pageNumber]: this.currentPage,

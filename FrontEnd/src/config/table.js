@@ -4,7 +4,7 @@ import tool from '@/utils/tool'
 
 export default {
 	successCode: 20000,												//请求完成代码
-	pageSize: 20,													//表格每一页条数
+	pageSize: 10,													//表格每一页条数
 	pageSizes: [10, 20, 30, 40, 50],								//表格可设置的一页条数
 	paginationLayout: "total, sizes, prev, pager, next, jumper",	//表格分页布局，可设置"total, sizes, prev, pager, next, jumper"
 	parseData: function (res) {										//数据分析

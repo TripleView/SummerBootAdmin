@@ -65,6 +65,7 @@ public class MenuController : ControllerBase
 
         if (menu.Meta != null)
         {
+            menu.Meta.Id = menu.Id;
             await menuMetaRepository.UpdateAsync(menu.Meta);
         }
 
