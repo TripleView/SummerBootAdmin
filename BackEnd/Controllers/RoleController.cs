@@ -21,13 +21,15 @@ public class RoleController : ControllerBase
     private readonly IRoleRepository roleRepository;
     private readonly IUnitOfWork1 unitOfWork1;
     private readonly IMapper mapper;
+    private readonly IRoleAssignMenuRepository roleAssignMenuRepository;
 
-    public RoleController(IConfiguration configuration, IRoleRepository roleRepository, IUnitOfWork1 unitOfWork1, IMapper mapper)
+    public RoleController(IConfiguration configuration, IRoleRepository roleRepository, IUnitOfWork1 unitOfWork1, IMapper mapper, IRoleAssignMenuRepository roleAssignMenuRepository)
     {
         this.configuration = configuration;
         this.roleRepository = roleRepository;
         this.unitOfWork1 = unitOfWork1;
         this.mapper = mapper;
+        this.roleAssignMenuRepository = roleAssignMenuRepository;
     }
 
     [HttpPost]
@@ -61,7 +63,7 @@ public class RoleController : ControllerBase
         return ApiResult<Role>.Ok(dbRole);
     }
 
-    
+
     private async Task<bool> CheckRole(Role role, bool isUpdate)
     {
         var query = QueryCondition.True<Role>();
@@ -88,7 +90,7 @@ public class RoleController : ControllerBase
         }
         unitOfWork1.BeginTransaction();
 
-        await roleRepository.DeleteAsync(it => deleteMenusDto.Ids.Contains( it.Id));
+        await roleRepository.DeleteAsync(it => deleteMenusDto.Ids.Contains(it.Id));
         unitOfWork1.Commit();
         return ApiResult<bool>.Ok(true);
     }
@@ -96,10 +98,10 @@ public class RoleController : ControllerBase
     [HttpPost]
     public async Task<ApiResult<Page<Role>>> GetRolesByPage([FromBody] PageQueryRoleDto dto)
     {
-        var result= await roleRepository.ToPageAsync(dto);
+        var result = await roleRepository.ToPageAsync(dto);
         return ApiResult<Page<Role>>.Ok(result);
     }
-    
+
     [HttpGet]
     public async Task<ApiResult<List<Role>>> List()
     {
@@ -108,5 +110,41 @@ public class RoleController : ControllerBase
         return ApiResult<List<Role>>.Ok(roles);
     }
 
+    /// <summary>
+    /// 给角色分配权限
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    [HttpPost]
+    public async Task<ApiResult<bool>> RoleAssignPermissions([FromBody] RoleAssignPermissionsDto dto)
+    {
+        if (dto.RoleIds == null || dto.RoleIds.Count == 0 || dto.MenuIds == null || dto.MenuIds.Count == 0)
+        {
+            throw new Exception("参数不正确");
+        }
 
+        unitOfWork1.BeginTransaction();
+        foreach (var dtoRoleId in dto.RoleIds)
+        {
+            var dbRole = await roleRepository.GetAsync(dtoRoleId);
+            if (dbRole == null)
+            {
+                throw new Exception("角色不存在");
+            }
+
+            await roleAssignMenuRepository.DeleteAsync(it => it.RoleId == dtoRoleId);
+
+            var roleAssignMenus = dto.MenuIds.Select(it => new RoleAssignMenu()
+            {
+                RoleId = dtoRoleId,
+                MenuId = it
+            }).ToList();
+
+            await roleAssignMenuRepository.FastBatchInsertAsync(roleAssignMenus);
+        }
+
+        unitOfWork1.Commit();
+        return ApiResult<bool>.Ok(true);
+    }
 }

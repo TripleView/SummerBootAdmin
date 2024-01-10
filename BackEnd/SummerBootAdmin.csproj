@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <Folder Include="Dto\Department\" />
-    <Folder Include="Dto\Role\" />
     <Folder Include="Model\Department\" />
     <Folder Include="Model\User\" />
   </ItemGroup>
