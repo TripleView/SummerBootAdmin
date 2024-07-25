@@ -70,7 +70,7 @@ public class MenuController : ControllerBase
         }
 
         unitOfWork1.Commit();
-        return ApiResult<Menu>.Ok(dbMenu);
+        return ApiResult<Menu>.Ok(menu);
     }
 
     [HttpPost]
