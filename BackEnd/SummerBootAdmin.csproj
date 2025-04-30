@@ -10,7 +10,7 @@
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.15" />
     <PackageReference Include="MySqlConnector" Version="2.4.0" />
-    <PackageReference Include="SummerBoot" Version="2.1.7" />
+	  <PackageReference Include="SummerBoot" Version="2.2.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="7.2.0" />
   </ItemGroup>

@@ -10,7 +10,7 @@ namespace SummerBootAdmin
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -25,9 +25,9 @@ namespace SummerBootAdmin
             });
             builder.Services.AddSummerBootMvcExtension(it =>
             {
-                //是否启用全局错误处理
+                //锟角凤拷锟斤拷锟斤拷全锟街达拷锟斤拷锟斤拷
                 it.UseGlobalExceptionHandle = true;
-                //是否启用参数校验处理
+                //锟角凤拷锟斤拷锟矫诧拷锟斤拷校锟介处锟斤拷
                 it.UseValidateParameterHandle = true;
             });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -45,13 +45,13 @@ namespace SummerBootAdmin
                 var connectionString = configuration.GetValue<string>("mysqlDbConnectionString");
                 it.AddDatabaseUnit<MySqlConnection, IUnitOfWork1>(connectionString, x =>
                 {
-                    //通过自定义注解批量绑定仓储
-                    x.BindRepositorysWithAttribute<AutoRepository1Attribute>();
+                    //通锟斤拷锟皆讹拷锟斤拷注锟斤拷锟斤拷锟斤拷锟襟定仓达拷
+                    x.BindRepositoriesWithAttribute<AutoRepository1Attribute>();
                     
-                    //绑定数据库生成接口
+                    //锟斤拷锟斤拷锟捷匡拷锟斤拷锟缴接匡拷
                     x.BindDbGeneratorType<IDbGenerator1>();
 
-                    //绑定插入前回调
+                    //锟襟定诧拷锟斤拷前锟截碉拷
                     x.BeforeInsert += entity =>
                     {
                         if (entity is BaseEntity baseEntity)
@@ -60,7 +60,7 @@ namespace SummerBootAdmin
                         }
                     };
 
-                    //绑定更新前回调
+                    //锟襟定革拷锟斤拷前锟截碉拷
                     x.BeforeUpdate += entity =>
                     {
                         if (entity is BaseEntity baseEntity)
@@ -85,6 +85,32 @@ namespace SummerBootAdmin
             app.MapControllers();
 
             app.Run();
+        }
+
+        /// <summary>
+        /// Initialize the database
+        /// 鍒濆鍖栨暟鎹簱
+        /// </summary>
+        /// <param name="service"></param>
+        /// <returns></returns>
+        private static async Task InitDatabase(IServiceProvider service)
+        {
+            var dbGenerator= service.CreateScope().ServiceProvider.GetService<IDbGenerator1>();
+        
+            if (dbGenerator.GetAllTableNames().Count == 0)
+            {
+                var sqls = dbGenerator.GenerateSql(new List<Type>()
+                {
+                    typeof(Department), typeof(Dictionary), typeof(DictionaryItem),
+                    typeof(Role), typeof(RoleAssignMenu),
+                    typeof(User), typeof(MenuMeta), typeof(Menu),
+                });
+                foreach (var generateDatabaseSqlResult in sqls)
+                {
+                    dbGenerator.ExecuteGenerateSql(generateDatabaseSqlResult);
+                }
+            }
+        
         }
     }
 }
