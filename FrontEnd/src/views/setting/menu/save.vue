@@ -30,7 +30,7 @@
 						<sc-icon-select v-model="form.meta.icon" clearable></sc-icon-select>
 					</el-form-item>
 					<el-form-item label="路由地址" prop="path">
-						<el-input v-model="form.path" clearable placeholder=""></el-input>
+						<el-input v-model="form.path" clearable placeholder="例如/menu"></el-input>
 					</el-form-item>
 					<el-form-item label="重定向" prop="redirect">
 						<el-input v-model="form.redirect" clearable placeholder=""></el-input>

@@ -16,7 +16,7 @@
 		"cropperjs": "1.5.13",
 		"crypto-js": "4.1.1",
 		"echarts": "5.4.1",
-		"element-plus": "2.2.32",
+		"element-plus": "2.9.9",
 		"nprogress": "0.2.0",
 		"qrcodejs2": "0.0.2",
 		"sortablejs": "1.15.0",
@@ -38,7 +38,7 @@
 		"@vue/cli-service": "5.0.8",
 		"eslint": "8.35.0",
 		"eslint-plugin-vue": "9.9.0",
-		"sass": "1.58.3",
+		"sass": "1.80.6",
 		"sass-loader": "10.1.1"
 	},
 	"browserslist": [

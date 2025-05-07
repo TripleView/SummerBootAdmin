@@ -109,12 +109,10 @@ export default {
 			this.menuloading = true
 			var res = await this.$API.system.menu.addMenu.post(newMenuData)
 			this.menuloading = false
-			newMenuData.id = res.data.id
 
-			this.$refs.menu.append(newMenuData, node)
-			this.$refs.menu.setCurrentKey(newMenuData.id)
-			var pid = node ? node.data.id : ""
-			this.$refs.save.setData(newMenuData, pid)
+			this.$refs.menu.append(res.data, node)
+			this.$refs.menu.setCurrentKey(res.data.id)
+			this.$refs.save.setData(res.data)
 		},
 		//删除菜单
 		async delMenu() {

@@ -16,5 +16,11 @@ app.use(ElementPlus);
 app.use(i18n);
 app.use(scui);
 
+app.config.globalProperties.$clone = function(obj){
+  console.log("我来了")
+ return JSON.parse(JSON.stringify(obj))
+}
+
+
 //挂载app
 app.mount('#app');
