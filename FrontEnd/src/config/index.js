@@ -16,7 +16,7 @@ const DEFAULT_CONFIG = {
 
 
 	//请求超时
-	TIMEOUT: 10000,
+	TIMEOUT: 3600000,
 
 	//TokenName
 	TOKEN_NAME: "Authorization",
