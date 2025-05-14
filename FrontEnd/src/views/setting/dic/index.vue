@@ -6,18 +6,17 @@
 					<el-input placeholder="输入关键字进行过滤" v-model="dicFilterText" clearable></el-input>
 				</el-header>
 				<el-main class="nopadding">
-					<el-tree ref="dic" class="menu" node-key="id" :data="dicList" :props="dicProps"
-						:highlight-current="true" :expand-on-click-node="false" :filter-node-method="dicFilterNode"
-						@node-click="dicClick">
+					<el-tree ref="dic" class="menu" node-key="id" :data="dicList" :props="dicProps" :highlight-current="true"
+						:expand-on-click-node="false" :filter-node-method="dicFilterNode" @node-click="resetItems">
 						<template #default="{ node, data }">
 							<span class="custom-tree-node">
 								<span class="label">{{ node.label }}</span>
 								<span class="code">{{ data.code }}</span>
 								<span class="do">
 									<el-button-group>
-										<el-button icon="el-icon-edit" size="small" @click.stop="dicEdit(data)"></el-button>
-										<el-button icon="el-icon-delete" size="small"
-											@click.stop="dicDel(node, data)"></el-button>
+										<el-button icon="el-icon-plus" size="small" @click.stop="addSubDic(data)"></el-button>
+										<el-button icon="el-icon-edit" size="small" @click.stop="editDic(data)"></el-button>
+										<el-button icon="el-icon-delete" size="small" @click.stop="deleteDic(node, data)"></el-button>
 									</el-button-group>
 								</span>
 							</span>
@@ -25,8 +24,7 @@
 					</el-tree>
 				</el-main>
 				<el-footer style="height:51px;">
-					<el-button type="primary" size="small" icon="el-icon-plus" style="width: 100%;"
-						@click="addDic">字典分类</el-button>
+					<el-button type="primary" size="small" icon="el-icon-plus" style="width: 100%;" @click="addDic">字典分类</el-button>
 				</el-footer>
 			</el-container>
 		</el-aside>
@@ -40,17 +38,17 @@
 			</el-header>
 			<el-main class="nopadding">
 
-				<sbTable ref="table" :apiObj="listApi" row-key="id" :params="listApiParams"
-					@selection-change="selectionChange" stripe :paginationLayout="'prev, pager, next'">
+				<sbTable ref="table" :apiObj="listApi" row-key="id" :params="listApiParams" @selection-change="selectionChange"
+					stripe :paginationLayout="'prev, pager, next'">
 					<el-table-column type="selection" width="50"></el-table-column>
 					<el-table-column label="" width="60">
 						<template #default>
-							<el-tag class="move" style="cursor: move;"><el-icon-d-caret
-									style="width: 1em; height: 1em;" /></el-tag>
+							<el-tag class="move" style="cursor: move;"><el-icon-d-caret style="width: 1em; height: 1em;" /></el-tag>
 						</template>
 					</el-table-column>
 					<el-table-column label="名称" prop="name" width="150"></el-table-column>
 					<el-table-column label="键值" prop="value" width="150"></el-table-column>
+					<el-table-column label="排序" prop="index" width="150"></el-table-column>
 					<!-- <el-table-column label="是否有效" prop="yx" width="100">
 						<template #default="scope">
 							<el-switch v-model="scope.row.yx" @change="changeSwitch($event, scope.row)" :loading="scope.row.$switch_yx" active-value="1" inactive-value="0"></el-switch>
@@ -59,9 +57,8 @@
 					<el-table-column label="操作" fixed="right" align="right" width="120">
 						<template #default="scope">
 							<el-button-group>
-								<el-button text type="primary" size="small"
-									@click="table_edit(scope.row, scope.$index)">编辑</el-button>
-								<el-popconfirm title="确定删除吗？" @confirm="table_del(scope.row, scope.$index)">
+								<el-button text type="primary" size="small" @click="table_edit(scope.row, scope.$index)">编辑</el-button>
+								<el-popconfirm title="确定删除吗？" @confirm="deleteDicItem(scope.row, scope.$index)">
 									<template #reference>
 										<el-button text type="primary" size="small">删除</el-button>
 									</template>
@@ -125,6 +122,13 @@ export default {
 			var res = await this.$API.system.dic.tree.get();
 			this.showDicloading = false;
 			this.dicList = res.data;
+			this.listApiParams = {
+				dictionaryId: 0
+			}
+
+			this.listApi = this.$API.system.dic.listItem;
+		},
+		setDefaultNode() {
 			//获取第一个节点,设置选中 & 加载明细列表
 			var firstNode = this.dicList[0];
 			if (firstNode) {
@@ -132,11 +136,7 @@ export default {
 				this.$nextTick(() => {
 					this.$refs.dic.setCurrentKey(firstNode.id)
 				})
-				this.listApiParams = {
-					dictionaryId: firstNode.dictionaryId
-				}
-				// alert(123)
-				this.listApi = this.$API.system.dic.listItem;
+
 			}
 		},
 		//树过滤
@@ -153,46 +153,53 @@ export default {
 			})
 		},
 		//编辑树
-		dicEdit(data) {
+		editDic(data) {
 			this.dialog.dic = true
 			this.$nextTick(() => {
-				var editNode = this.$refs.dic.getNode(data.id);
-				data.parentId = editNode.parentId
 				this.$refs.dicDialog.open('edit').setData(data)
 			})
 		},
-		//树点击事件
-		dicClick(data) {
-			console.log("树点击事件", data)
+		//添加子字典
+		addSubDic(data) {
+			this.dialog.dic = true
+			this.$nextTick(() => {
+				var subDic = {}
+				subDic.parentId = data.id
+				this.$refs.dicDialog.open().setData(subDic)
+			})
+		},
+		resetItems() {
+			var dicCurrentKey = this.$refs.dic.getCurrentKey()
+			if (dicCurrentKey == null) {
+				dicCurrentKey = 0
+			}
 			this.$refs.table.reload({
-				dictionaryId: data.id
+				dictionaryId: dicCurrentKey
 			})
 		},
 		//删除树
-		dicDel(node, data) {
+		deleteDic(node, data) {
+			console.log("node", this.node, data)
+
 			this.$confirm(`确定删除 ${data.name} 项吗？`, '提示', {
 				type: 'warning'
-			}).then(() => {
+			}).then(async () => {
 				this.showDicloading = true;
-
-				//删除节点是否为高亮当前 是的话 设置第一个节点高亮
-				var dicCurrentKey = this.$refs.dic.getCurrentKey();
-				this.$refs.dic.remove(data.id)
-				if (dicCurrentKey == data.id) {
-					var firstNode = this.dicList[0];
-					if (firstNode) {
-						this.$refs.dic.setCurrentKey(firstNode.id);
-						this.$refs.table.upData({
-							code: firstNode.code
-						})
-					} else {
-						this.listApi = null;
-						this.$refs.table.tableData = []
-					}
+				var reqData = {}
+				reqData.Ids = [];
+				reqData.Ids.push(data.id);
+				var res = await this.$API.system.dic.deleteDics.post(reqData);
+				if (res.code == 20000) {
+					this.$message.success("删除成功")
+					await this.getDic()
+					this.$refs.dic.setCurrentKey(data.parentId)
+					this.resetItems()
+				} else {
+					this.$alert(res.msg, "提示", { type: 'error' })
 				}
 
 				this.showDicloading = false;
-				this.$message.success("操作成功")
+				// this.$message.success("操作成功")
 			}).catch(() => {
 
 			})
@@ -234,10 +241,11 @@ export default {
 			})
 		},
 		//删除明细
-		async table_del(row, index) {
+		async deleteDicItem(row, index) {
 			var reqData = {}
 			reqData.Ids = [];
 			reqData.Ids.push(row.id);
+			console.log("this.$API.system.dic", this.$API.system.dic)
 			//  {id: row.id}
 			var res = await this.$API.system.dic.deleteDicItems.post(reqData);
 			if (res.code == 20000) {
@@ -318,9 +326,11 @@ export default {
 			}, 500)
 		},
 		//本地更新数据
-		handleDicSuccess(data, mode) {
-			console.log(data, mode)
-			this.getDic();
+		async handleDicSuccess(data, mode) {
+			console.log("handleDicSuccess", data, mode)
+			await this.getDic();
+			this.$refs.dic.setCurrentKey(data.id)
+			this.resetItems()
 			return;
 			// if(mode=='add'){
 			// 	data.id = new Date().getTime()

@@ -11,6 +11,9 @@
 			<el-form-item label="键值" prop="value">
 				<el-input v-model="form.value" clearable></el-input>
 			</el-form-item>
+			<el-form-item label="排序" prop="index">
+				<el-input type="number" v-model="form.index" clearable></el-input>
+			</el-form-item>
 			<!-- <el-form-item label="是否有效" prop="yx">
 				<el-switch v-model="form.yx" active-value="1" inactive-value="0"></el-switch>
 			</el-form-item> -->
@@ -39,6 +42,7 @@ export default {
 				dictionaryId: "",
 				name: "",
 				key: "",
+				index:""//排序
 				// yx: "1"
 			},
 			rules: {
@@ -48,8 +52,11 @@ export default {
 				name: [
 					{ required: true, message: '请输入项名称' }
 				],
-				key: [
+				value: [
 					{ required: true, message: '请输入键值' }
+				],
+				index: [
+					{ required: true, message: '请输入排序' }
 				]
 			},
 			dic: [],
@@ -106,9 +113,7 @@ export default {
 		},
 		//表单注入数据
 		setData(data) {
-			this.form.id = data.id
-			this.form.name = data.name
-			this.form.value = data.value
+			this.form=this.$clone(data)
 			// this.form.yx = data.yx
 			this.form.dictionaryId = data.dictionaryId
 		}

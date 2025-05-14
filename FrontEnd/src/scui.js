@@ -20,7 +20,7 @@ import scForm from './components/scForm'
 import scTitle from './components/scTitle'
 import scWaterMark from './components/scWaterMark'
 import scQrCode from './components/scQrCode'
-
+import scCodeEditor from './components/scCodeEditor'
 import scStatusIndicator from './components/scMini/scStatusIndicator'
 import scTrend from './components/scMini/scTrend'
 
@@ -37,6 +37,7 @@ import * as scIcons from './assets/icons'
 import Treeselect from 'vue3-treeselect'
 // // import the styles
 import 'vue3-treeselect/dist/vue3-treeselect.css'
+
 
 export default {
 	install(app) {
@@ -68,7 +69,8 @@ export default {
 		app.component('scQrCode', scQrCode);
 		app.component('scStatusIndicator', scStatusIndicator);
 		app.component('scTrend', scTrend);
-
+		app.component('scCodeEditor', scCodeEditor);
+		
 		//注册全局指令
 		app.directive('auth', auth)
 		app.directive('auths', auths)

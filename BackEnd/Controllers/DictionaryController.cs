@@ -37,6 +37,7 @@ public class DictionaryController : ControllerBase
     public async Task<ApiResult<Dictionary>> AddDictionary([FromBody] AddDictionaryDto dto)
     {
         var dictionary = mapper.Map<AddDictionaryDto, Dictionary>(dto);
+        await CheckDictionary(dictionary, false);
         unitOfWork1.BeginTransaction();
         var dbDictionary = await dictionaryRepository.InsertAsync(dictionary);
 
@@ -56,11 +57,29 @@ public class DictionaryController : ControllerBase
         return ApiResult<DictionaryItem>.Ok(dbDictionary);
     }
 
+    private async Task<bool> CheckDictionary(Dictionary dictionary, bool isUpdate)
+    {
+        var query = QueryCondition.True<Dictionary>();
+        query = query.And(it => it.Code == dictionary.Code );
+        if (isUpdate)
+        {
+            query = query.And(it => it.Id != dictionary.Id);
+        }
+     
+        var dbModel = await dictionaryRepository.FirstOrDefaultAsync(query);
 
+        if (dbModel != null)
+        {
+            throw new Exception("编码不允许重复");
+        }
+        
+        return true;
+    }
     [HttpPost]
     public async Task<ApiResult<Dictionary>> UpdateDictionary([FromBody] Dictionary dictionary)
     {
         unitOfWork1.BeginTransaction();
+        await CheckDictionary(dictionary, true);
         var dbDictionary = await dictionaryRepository.GetAsync(dictionary.Id);
         if (dbDictionary == null)
         {
@@ -94,7 +113,7 @@ public class DictionaryController : ControllerBase
     private async Task<bool> CheckDictionaryItem(DictionaryItem dictionaryItem, bool isUpdate)
     {
         var query = QueryCondition.True<DictionaryItem>();
-        query = query.And(it => it.Name == dictionaryItem.Name);
+        query = query.And(it => it.Name == dictionaryItem.Name&&it.DictionaryId==dictionaryItem.DictionaryId);
         if (isUpdate)
         {
             query = query.And(it => it.Id != dictionaryItem.Id);
@@ -145,7 +164,7 @@ public class DictionaryController : ControllerBase
     private async Task<bool> DeleteDictionarysByRecursion(int dictionaryId)
     {
         await dictionaryRepository.DeleteAsync(it => it.Id == dictionaryId);
-
+        await dictionaryItemRepository.DeleteAsync(x => x.DictionaryId == dictionaryId);
         var childrenMenus = await dictionaryRepository.Where(it => it.ParentId == dictionaryId).ToListAsync();
         if (childrenMenus.Count == 0)
         {
@@ -172,7 +191,7 @@ public class DictionaryController : ControllerBase
     [HttpPost]
     public async Task<ApiResult<Page<DictionaryItem>>> ListItem([FromBody] PageQueryDictionaryItemDto dto)
     {
-        var dictionarys = await dictionaryItemRepository.Where(it => it.DictionaryId == dto.DictionaryId).ToPageAsync(dto);
+        var dictionarys = await dictionaryItemRepository.Where(it => it.DictionaryId == dto.DictionaryId).OrderBy(x => x.Index).ToPageAsync(dto);
 
         return ApiResult<Page<DictionaryItem>>.Ok(dictionarys);
     }
@@ -193,5 +212,16 @@ public class DictionaryController : ControllerBase
         return list;
     }
 
+    [HttpGet]
+    public async Task<ApiResult<List<DictionaryItem>>> GetDictionaryItems([FromQuery] string code)
+    {
+        var items = await dictionaryItemRepository
+            .InnerJoin(new Dictionary(),x=>x.T1.DictionaryId==x.T2.Id)
+            .Where(x=>x.T2.Code==code)
+            .OrderBy(x => x.T1.Index)
+            .Select(x=>x.T1)
+            .ToListAsync();
 
+        return ApiResult<List<DictionaryItem>>.Ok(items);
+    }
 }

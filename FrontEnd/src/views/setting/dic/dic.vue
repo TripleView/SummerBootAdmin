@@ -34,7 +34,8 @@
 					id:"",
 					name: "",
 					code: "",
-					parentId: ""
+					parentId: "",
+	
 				},
 				rules: {
 					code: [
@@ -70,18 +71,24 @@
 			},
 			//表单提交方法
 			submit(){
+				
 				this.$refs.dialogForm.validate(async (valid) => {
 					if (valid) {
 						this.isSaveing = true;
 					
-						var res = await this.$API.system.dic.addDic.post(this.form);
+						var res = {}
+						if(this.mode=="add"){
+							res = await this.$API.system.dic.addDic.post(this.form);
+						}else{
+							res = await this.$API.system.dic.updateDic.post(this.form);
+						}
 						this.isSaveing = false;
 						if(res.code == 20000){
-							this.$emit('success', this.form, this.mode)
+							this.$emit('success', res.data, this.mode)
 							this.visible = false;
 							this.$message.success("操作成功")
 						}else{
-							this.$alert(res.message, "提示", {type: 'error'})
+							this.$alert(res.msg, "提示", {type: 'error'})
 						}
 					}
 				})

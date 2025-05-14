@@ -37,8 +37,10 @@ namespace SummerBootAdmin
             {
                 it.AddProfile<SummerbootProfile>();
             });
+
             builder.Services.AddCors(it =>
-                it.AddPolicy("all", x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()));
+                it.AddPolicy("all", x => x.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed(_ => true).AllowCredentials()));
+            
             builder.Services.AddSummerBoot();
             builder.Services.AddSummerBootRepository(it =>
             {

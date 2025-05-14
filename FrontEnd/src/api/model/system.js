@@ -66,6 +66,15 @@ export default {
 				return await http.post(this.url, params);
 			}
 		},
+		getDictionaryItems: {
+			url: `${config.MY_API_URL}/Dictionary/GetDictionaryItems`,
+			name: "根据字典编号获取字典数据项列表",
+			get: async function(code){
+				var params={};
+				params.code=code;
+				return await http.get(this.url, params);
+			}
+		},
 		get: {
 			url: `${config.API_URL}/system/dic/get`,
 			name: "获取字典数据",
@@ -96,7 +105,7 @@ export default {
 			}
 		},
 		deleteDics: {
-			url: `${config.MY_API_URL}/Dictionary/deleteMenus`,
+			url: `${config.MY_API_URL}/Dictionary/DeleteDictionarys`,
 			name: "删除菜单",
 			post: async function(data){
 				return await http.post(this.url, data, {

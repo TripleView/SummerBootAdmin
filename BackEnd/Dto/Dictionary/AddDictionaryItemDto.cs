@@ -11,6 +11,9 @@ public class AddDictionaryItemDto
     public string Name { get; set; }
     [Description("字典项值")]
     public string Value { get; set; }
-
+    /// <summary>
+    /// 排序
+    /// </summary>
+    public int Index { get; set; }
 
 }
