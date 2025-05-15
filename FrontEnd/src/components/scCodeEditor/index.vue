@@ -138,6 +138,17 @@ export default {
 			this.$nextTick(() => {
 				that.coder && that.coder.refresh();
 			})
+		},
+		//移动到末尾
+		scrollToBottom() {
+			var that = this;
+			this.$nextTick(() => {
+				if (that.coder) {
+					const scrollInfo = that.coder.getScrollInfo();
+					const bottom = scrollInfo.height - scrollInfo.clientHeight;
+					that.coder.scrollTo(null, bottom);
+				}
+			})
 		}
 	}
 }
