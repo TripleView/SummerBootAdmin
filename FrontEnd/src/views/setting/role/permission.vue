@@ -1,9 +1,9 @@
 <template>
-	<el-dialog title="角色权限设置" v-model="visible" :width="500" destroy-on-close @closed="$emit('closed')">
+	<el-dialog :title="titleMap[mode]" v-model="visible" :width="500" destroy-on-close @closed="$emit('closed')">
 		<el-tabs tab-position="top">
 			<el-tab-pane label="菜单权限">
 				<div class="treeMain">
-					<el-tree ref="menu" node-key="name" :data="menu.list" :props="menu.props" show-checkbox></el-tree>
+					<el-tree ref="menu" node-key="id" :data="menu.list" :props="menu.props" show-checkbox></el-tree>
 				</div>
 			</el-tab-pane>
 			<el-tab-pane label="数据权限">
@@ -21,28 +21,25 @@
 					<!-- :props="data.props" -->
 					<el-form-item label="选择部门" v-show="data.dataType == '5'">
 						<div class="treeMain" style="width: 100%;">
-							<el-tree ref="dept" node-key="id" :data="data.list" show-checkbox
-								:props="departmentGroupsProps"></el-tree>
+							<el-tree ref="dept" node-key="id" :data="data.list" show-checkbox :props="departmentGroupsProps"></el-tree>
 						</div>
 					</el-form-item>
 					<el-form-item label="规则值" v-show="data.dataType == '6'">
-						<el-input v-model="data.rule" clearable type="textarea" :rows="6"
-							placeholder="请输入自定义规则代码"></el-input>
+						<el-input v-model="data.rule" clearable type="textarea" :rows="6" placeholder="请输入自定义规则代码"></el-input>
 					</el-form-item>
 				</el-form>
 			</el-tab-pane>
 			<el-tab-pane label="控制台模块">
 				<div class="treeMain">
-					<el-tree ref="grid" node-key="key" :data="grid.list" :props="grid.props"
-						:default-checked-keys="grid.checked" show-checkbox></el-tree>
+					<el-tree ref="grid" node-key="key" :data="grid.list" :props="grid.props" :default-checked-keys="grid.checked"
+						show-checkbox></el-tree>
 				</div>
 			</el-tab-pane>
 			<el-tab-pane label="控制台">
 				<el-form label-width="100px" label-position="left">
 					<el-form-item label="控制台视图">
 						<el-select v-model="dashboard" placeholder="请选择">
-							<el-option v-for="item in dashboardOptions" :key="item.value" :label="item.label"
-								:value="item.value">
+							<el-option v-for="item in dashboardOptions" :key="item.value" :label="item.label" :value="item.value">
 								<span style="float: left">{{ item.label }}</span>
 								<span style="float: right; color: #8492a6; font-size: 12px">{{ item.views }}</span>
 							</el-option>
@@ -52,7 +49,7 @@
 				</el-form>
 			</el-tab-pane>
 		</el-tabs>
-		<template #footer>
+		<template #footer v-if="mode == 'assignRoles'">
 			<el-button @click="visible = false">取 消</el-button>
 			<el-button type="primary" :loading="isSaveing" @click="submit()">保 存</el-button>
 		</template>
@@ -64,6 +61,13 @@ export default {
 	emits: ['success', 'closed'],
 	data() {
 		return {
+			isSetData: false,
+			roleIds: [],//角色id列表
+			titleMap: {
+				assignRoles: '分配角色权限',
+				show: '查看角色权限'
+			},
+			mode: 'show',
 			departmentGroupsProps: {
 				value: "id",
 				label: "name",
@@ -117,41 +121,71 @@ export default {
 		}
 	},
 	mounted() {
-		this.getMenu()
+
 		this.getDept()
 		this.getGrid()
 	},
 	methods: {
-		open() {
-			this.visible = true;
+		//表单注入数据
+		setData(data) {
+			if (data == null) {
+				return;
+			}
+
+			if (Array.isArray(data)) {
+				this.roleIds = data.map(x => x.id)
+			} else {
+				this.roleIds = [data.id]
+			}
+			this.isSetData = true;
+			this.initData();
+			// console.log("this.roleIds", this.roleIds)
+			return this;
 		},
-		submit() {
+		async initData() {
+			if (this.isSetData && this.visible) {
+				await this.getMenu()
+				if (this.mode == 'show' && this.roleIds.length == 1) {
+					var res = await this.$API.role.getRolePermissions.get(this.roleIds[0])
+					this.$refs.menu.setCheckedKeys(res.data.menuIds)
+				}
+			}
+		},
+		open(mode = 'show') {
+			this.mode = mode
+			this.visible = true;
+			this.initData();
+			return this;
+		},
+		async submit() {
 			this.isSaveing = true;
 
 			//选中的和半选的合并后传值接口
-			var checkedKeys = this.$refs.menu.getCheckedKeys().concat(this.$refs.menu.getHalfCheckedKeys())
-			console.log(checkedKeys)
+			var menuIds = this.$refs.menu.getCheckedKeys()
+			console.log(menuIds)
 
-			var checkedKeys_dept = this.$refs.dept.getCheckedKeys().concat(this.$refs.dept.getHalfCheckedKeys())
+			var checkedKeys_dept = this.$refs.dept.getCheckedKeys()
 			console.log(checkedKeys_dept)
 
-			setTimeout(() => {
-				this.isSaveing = false;
-				this.visible = false;
+			var postData = {};
+			postData.menuIds = menuIds;
+			postData.roleIds = this.roleIds;
+			var res = await this.$API.role.roleAssignPermissions.post(postData);
+			this.isSaveing = false;
+			this.visible = false;
+
+			if (res.code == '20000') {
 				this.$message.success("操作成功")
 				this.$emit('success')
-			}, 1000)
+			} else {
+				this.$message.error(res.msg)
+			}
+
+
 		},
 		async getMenu() {
 			var res = await this.$API.system.menu.list.get()
 			this.menu.list = res.data
-
-			//获取接口返回的之前选中的和半选的合并，处理过滤掉有叶子节点的key
-			this.menu.checked = ["system", "user", "user.add", "user.edit", "user.del", "directive.edit", "other", "directive"]
-			this.$nextTick(() => {
-				let filterKeys = this.menu.checked.filter(key => this.$refs.menu.getNode(key).isLeaf)
-				this.$refs.menu.setCheckedKeys(filterKeys, true)
-			})
 		},
 		async getDept() {
 			var res = await this.$API.department.tree.get();

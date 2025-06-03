@@ -20,6 +20,12 @@ app.config.globalProperties.$clone = function (obj) {
 	return JSON.parse(JSON.stringify(obj));
 };
 
+app.config.globalProperties.$localDateFormat = function (utcString) {
+	if (!utcString) return "";
+	const date = new Date(utcString);
+	return date.toLocaleString();
+};
+
 app.config.globalProperties.$getDictionaryItems = async function (code) {
 	var res =
 		await app.config.globalProperties.$API.system.dic.getDictionaryItems.get(

@@ -19,14 +19,15 @@
 					<el-input type="password" v-model="form.password2" clearable show-password></el-input>
 				</el-form-item>
 			</template>
+
 			<el-form-item label="所属部门" prop="departmentId">
 				<treeSelect v-model="form.departmentId" :multiple="false" :options="depts" :normalizer="normalizer" />
 				<!-- <treeselect v-model="value" /> -->
 				<!-- <el-cascader v-model="form.departmentId" :options="depts" :props="deptsProps" clearable
 					style="width: 100%;"></el-cascader> -->
 			</el-form-item>
-			<el-form-item label="所属角色" prop="roleId">
-				<el-select v-model="form.roleId" filterable style="width: 100%">
+			<el-form-item label="所属角色" prop="roleIds">
+				<el-select v-model="form.roleIds" filterable style="width: 100%" multiple>
 					<el-option v-for="item in groups" :key="item.id" :label="item.name" :value="item.id" />
 				</el-select>
 			</el-form-item>
@@ -62,7 +63,7 @@ export default {
 				avatar: "",
 				name: "",
 				departmentId: "",
-				roleId: ""
+				roleIds: []
 			},
 			//验证规则
 			rules: {
@@ -101,7 +102,7 @@ export default {
 				departmentId: [
 					{ required: true, message: '请选择所属部门' }
 				],
-				roleId: [
+				roleIds: [
 					{ required: true, message: '请选择所属角色', trigger: 'change' }
 				]
 			},
@@ -178,12 +179,7 @@ export default {
 		},
 		//表单注入数据
 		setData(data) {
-			this.form.id = data.id
-			this.form.account = data.account
-			this.form.avatar = data.avatar
-			this.form.name = data.name
-			this.form.roleId = data.roleId
-			this.form.departmentId = data.departmentId
+			this.form = this.$clone(data)
 
 			//可以和上面一样单个注入，也可以像下面一样直接合并进去
 			//Object.assign(this.form, data)

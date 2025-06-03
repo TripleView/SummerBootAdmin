@@ -3,7 +3,7 @@
 namespace SummerBootAdmin.Repository.User;
 
 [AutoRepository1]
-public interface IUserRepository : IBaseRepository<Model.User.User>
+public interface IUserRoleRepository : IBaseRepository<Model.User.UserRole>
 {
     
 }

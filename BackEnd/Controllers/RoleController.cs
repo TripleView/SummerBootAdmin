@@ -1,18 +1,17 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using SummerBoot.Core;
 using SummerBoot.Repository;
-using SummerBoot.Repository.ExpressionParser.Parser;
-using SummerBootAdmin.Dto.Role;
 using SummerBootAdmin.Dto.Menu;
-using SummerBootAdmin.Model;
+using SummerBootAdmin.Dto.Role;
 using SummerBootAdmin.Model.Role;
 using SummerBootAdmin.Repository;
-using SummerBootAdmin.Repository.Department;
-namespace SummerBootAdmin;
+using SummerBootAdmin.Repository.Role;
 
+namespace SummerBootAdmin.Controllers;
+
+[Authorize]
 [ApiController]
 [Route("api/[controller]/[action]")]
 public class RoleController : ControllerBase
@@ -22,14 +21,16 @@ public class RoleController : ControllerBase
     private readonly IUnitOfWork1 unitOfWork1;
     private readonly IMapper mapper;
     private readonly IRoleAssignMenuRepository roleAssignMenuRepository;
+    private readonly IMenuRepository menuRepository;
 
-    public RoleController(IConfiguration configuration, IRoleRepository roleRepository, IUnitOfWork1 unitOfWork1, IMapper mapper, IRoleAssignMenuRepository roleAssignMenuRepository)
+    public RoleController(IConfiguration configuration, IRoleRepository roleRepository, IUnitOfWork1 unitOfWork1, IMapper mapper, IRoleAssignMenuRepository roleAssignMenuRepository, IMenuRepository menuRepository)
     {
         this.configuration = configuration;
         this.roleRepository = roleRepository;
         this.unitOfWork1 = unitOfWork1;
         this.mapper = mapper;
         this.roleAssignMenuRepository = roleAssignMenuRepository;
+        this.menuRepository = menuRepository;
     }
 
     [HttpPost]
@@ -53,6 +54,11 @@ public class RoleController : ControllerBase
         if (dbRole == null)
         {
             throw new Exception("要修改的角色不存在");
+        }
+
+        if (dbRole.Name == "admin")
+        {
+            throw new Exception("系统角色无法修改");
         }
 
         await CheckRole(role, true);
@@ -124,6 +130,12 @@ public class RoleController : ControllerBase
             throw new Exception("参数不正确");
         }
 
+        var adminRole = await roleRepository.FirstOrDefaultAsync(x => dto.RoleIds.Contains(x.Id) && x.Name == "admin");
+        if (adminRole != null)
+        {
+            throw new Exception("admin为系统角色，无法修改");
+        }
+
         unitOfWork1.BeginTransaction();
         foreach (var dtoRoleId in dto.RoleIds)
         {
@@ -141,10 +153,41 @@ public class RoleController : ControllerBase
                 MenuId = it
             }).ToList();
 
-            await roleAssignMenuRepository.FastBatchInsertAsync(roleAssignMenus);
+            await roleAssignMenuRepository.InsertAsync(roleAssignMenus);
         }
 
         unitOfWork1.Commit();
         return ApiResult<bool>.Ok(true);
+    }
+
+    /// <summary>
+    /// 查看角色拥有的权限
+    /// </summary>
+    /// <param name="roleId"></param>
+    /// <returns></returns>
+    [HttpGet]
+    public async Task<ApiResult<GetRolePermissionsOutputDto>> GetRolePermissions([FromQuery] int roleId)
+    {
+        var dbRole = await roleRepository.GetAsync(roleId);
+        if (dbRole == null)
+        {
+            throw new Exception("角色不存在");
+        }
+
+        var menuIds = new List<int>();
+        if (dbRole.Name == "admin")
+        {
+            menuIds = (await menuRepository.GetAllAsync()).Select(x => x.Id).ToList();
+        }
+        else
+        {
+            menuIds = await roleAssignMenuRepository.Where(x => x.RoleId == roleId).Select(x => x.MenuId).ToListAsync();
+        }
+
+        var result = new GetRolePermissionsOutputDto()
+        {
+            MenuIds = menuIds
+        };
+        return ApiResult<GetRolePermissionsOutputDto>.Ok(result);
     }
 }

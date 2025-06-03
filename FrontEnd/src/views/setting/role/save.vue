@@ -96,12 +96,8 @@ export default {
 		},
 		//表单注入数据
 		setData(data) {
-			this.form.id = data.id
-			this.form.name = data.name
-			// this.form.alias = data.alias
-			// this.form.sort = data.sort
-			// this.form.status = data.status
-			this.form.remark = data.remark
+			this.form = this.$clone(data)
+
 
 			//可以和上面一样单个注入，也可以像下面一样直接合并进去
 			//Object.assign(this.form, data)

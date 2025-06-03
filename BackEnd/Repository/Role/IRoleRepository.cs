@@ -1,11 +1,9 @@
 ﻿using SummerBoot.Repository;
-using SummerBootAdmin.Model.Department;
-using SummerBootAdmin.Model.Role;
 
-namespace SummerBootAdmin.Repository.Department;
+namespace SummerBootAdmin.Repository.Role;
 
 [AutoRepository1]
-public interface IRoleRepository : IBaseRepository<Role>
+public interface IRoleRepository : IBaseRepository<Model.Role.Role>
 {
     
 }

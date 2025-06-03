@@ -69,14 +69,22 @@
 			<el-col :lg="12" class="apilist">
 				<h2>接口权限</h2>
 				<sc-form-table v-model="form.apiList" :addTemplate="apiListAddTemplate" placeholder="暂无匹配接口权限">
-					<el-table-column prop="code" label="标识" width="150">
+
+					<el-table-column prop="url" label="Api url" align="center">
 						<template #default="scope">
-							<el-input v-model="scope.row.code" placeholder="请输入内容"></el-input>
-						</template>
-					</el-table-column>
-					<el-table-column prop="url" label="Api url">
-						<template #default="scope">
-							<el-input v-model="scope.row.url" placeholder="请输入内容"></el-input>
+							<el-select v-model="scope.row.url" placeholder="请选择" popper-class="api_select" clearable filterable>
+								<el-option v-for="api in apiList" :key="api.url" :label="api.url" :value="api.url"
+									style="min-height: 40px;">
+									<!-- <span style="float: left">{{ api.url }}</span>
+									<span style="float: right; color: #8492a6; font-size: 13px">{{ api.summary }}</span> -->
+									<template #default>
+										<div>{{ api.url }}</div>
+										<div style="font-size: 12px; color: #999;" v-if="api.summary && api.summary != ''">{{ api.summary }}
+										</div>
+
+									</template>
+								</el-option>
+							</el-select>
 						</template>
 					</el-table-column>
 				</sc-form-table>
@@ -97,6 +105,7 @@ export default {
 	},
 	data() {
 		return {
+			apiList: [],
 			form: {
 				id: "",
 				parentId: "",
@@ -132,7 +141,6 @@ export default {
 			],
 			rules: [],
 			apiListAddTemplate: {
-				code: "",
 				url: ""
 			},
 			loading: false
@@ -146,8 +154,11 @@ export default {
 			deep: true
 		}
 	},
-	mounted() {
-
+	async mounted() {
+		var res = await this.$API.system.menu.getApiList.get();
+		if (res.code == "20000") {
+			this.apiList = res.data
+		}
 	},
 	methods: {
 		//简单化菜单
@@ -177,6 +188,7 @@ export default {
 		},
 		//表单注入数据
 		setData(data) {
+
 			this.form = data
 			this.form.apiList = data.apiList || []
 			// this.form.parentId = pid
@@ -184,6 +196,19 @@ export default {
 	}
 }
 </script>
+
+<style>
+.api_select {
+	height: unset !important;
+
+	.el-select-dropdown__item {
+		height: unset;
+		line-height: unset;
+		border-bottom: 1px solid #dcdfe6;
+		padding: 5px 30px 5px;
+	}
+}
+</style>
 
 <style scoped>
 h2 {
@@ -202,4 +227,5 @@ h2 {
 
 [data-theme="dark"] .apilist {
 	border-color: #434343;
-}</style>
+}
+</style>

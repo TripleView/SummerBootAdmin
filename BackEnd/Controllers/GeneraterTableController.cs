@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SummerBoot.Repository.Generator;
 using SummerBootAdmin.Model;
 using SummerBootAdmin.Model.Department;
@@ -6,8 +7,8 @@ using SummerBootAdmin.Model.Dictionary;
 using SummerBootAdmin.Model.Role;
 using SummerBootAdmin.Model.User;
 
-namespace SummerBootAdmin;
-
+namespace SummerBootAdmin.Controllers;
+[Authorize]
 [ApiController]
 [Route("api/[controller]/[action]")]
 public class GeneraterTableController : Controller
@@ -21,7 +22,10 @@ public class GeneraterTableController : Controller
     [HttpGet]
     public IActionResult Index()
     {
-        var sqlResults= dbGenerator1.GenerateSql(new List<Type>() { typeof(Menu), typeof(MenuMeta),typeof(Dictionary),typeof(DictionaryItem),typeof(Department), typeof(User), typeof(Role) });
+        var sqlResults= dbGenerator1.GenerateSql(new List<Type>()
+        {
+            typeof(UserRole),typeof(Menu), typeof(MenuMeta),typeof(Dictionary),typeof(DictionaryItem),typeof(Department), typeof(User), typeof(Role)
+        });
         foreach (var sqlResult in sqlResults)
         {
             dbGenerator1.ExecuteGenerateSql(sqlResult);

@@ -24,15 +24,18 @@
 						<el-tag v-if="scope.row.status == 0" type="danger">停用</el-tag>
 					</template>
 				</el-table-column> -->
-				<el-table-column label="创建时间" prop="createOn" width="180"></el-table-column>
+
+				<el-table-column label="创建时间" prop="createOn" width="180">
+					<template #default="scope">
+						{{ formatLocalTime(scope.row.createOn) }}
+					</template>
+				</el-table-column>
 				<el-table-column label="备注" prop="remark" min-width="300"></el-table-column>
 				<el-table-column label="操作" fixed="right" align="right" width="170">
 					<template #default="scope">
 						<el-button-group>
-							<el-button text type="primary" size="small"
-								@click="table_show(scope.row, scope.$index)">查看</el-button>
-							<el-button text type="primary" size="small"
-								@click="table_edit(scope.row, scope.$index)">编辑</el-button>
+							<el-button text type="primary" size="small" @click="table_show(scope.row, scope.$index)">查看</el-button>
+							<el-button text type="primary" size="small" @click="table_edit(scope.row, scope.$index)">编辑</el-button>
 							<el-popconfirm title="确定删除吗？" @confirm="table_del(scope.row, scope.$index)">
 								<template #reference>
 									<el-button text type="primary" size="small">删除</el-button>
@@ -71,6 +74,9 @@ export default {
 		}
 	},
 	methods: {
+		formatLocalTime(utcString) {
+			return this.$localDateFormat(utcString)
+		},
 		//添加
 		add() {
 			this.dialog.save = true

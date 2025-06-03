@@ -1,19 +1,15 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using SummerBoot.Core;
 using SummerBoot.Repository;
-using SummerBoot.Repository.ExpressionParser.Parser;
 using SummerBootAdmin.Dto.Dictionary;
 using SummerBootAdmin.Dto.Menu;
-using SummerBootAdmin.Model;
 using SummerBootAdmin.Model.Dictionary;
-using SummerBootAdmin.Repository;
 using SummerBootAdmin.Repository.Dictionary;
 
-namespace SummerBootAdmin;
-
+namespace SummerBootAdmin.Controllers;
+[Authorize]
 [ApiController]
 [Route("api/[controller]/[action]")]
 public class DictionaryController : ControllerBase
@@ -33,6 +29,11 @@ public class DictionaryController : ControllerBase
         this.dictionaryItemRepository = dictionaryItemRepository;
     }
 
+    /// <summary>
+    /// 添加字典
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
     [HttpPost]
     public async Task<ApiResult<Dictionary>> AddDictionary([FromBody] AddDictionaryDto dto)
     {
@@ -45,6 +46,11 @@ public class DictionaryController : ControllerBase
         return ApiResult<Dictionary>.Ok(dbDictionary);
     }
 
+    /// <summary>
+    /// 添加字典项
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
     [HttpPost]
     public async Task<ApiResult<DictionaryItem>> AddDictionaryItem([FromBody] AddDictionaryItemDto dto)
     {

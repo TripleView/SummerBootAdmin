@@ -1,44 +1,34 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using SummerBoot.Core;
-using SummerBoot.Repository;
-using SummerBoot.Repository.ExpressionParser.Parser;
-using SummerBootAdmin.Dto.Menu;
+using SummerBootAdmin.Dto.Login;
+using SummerBootAdmin.Service;
 
-namespace SummerBootAdmin;
+namespace SummerBootAdmin.Controllers;
 
 [ApiController]
 [Route("api/[controller]/[action]")]
 public class LoginController : ControllerBase
 {
     private readonly IConfiguration configuration;
+    private readonly ILoginService loginService;
 
-    public LoginController(IConfiguration configuration)
+    public LoginController(IConfiguration configuration, ILoginService loginService)
     {
         this.configuration = configuration;
+        this.loginService = loginService;
     }
 
-
+    /// <summary>
+    /// 登录
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
     [HttpPost]
-    public async Task<ApiResult<TokenOutputDto>> Token([FromBody] TokenInputDto dto)
+    public async Task<ApiResult<LoginOutPutDto>> Token([FromBody] LoginInputDto dto)
     {
-        if (dto.UserName == "admin"&&dto.Password== "21232f297a57a5a743894a0e4a801fc3")
-        {
-            var result = new TokenOutputDto()
-            {
-                Token = "SCUI.Administrator.Auth",
-                UserInfo = new UserInfo()
-                {
-                    Dashboard = "0",
-                    Role = new List<string>() { "SA", "admin", "Auditor" },
-                    UserId = "1",
-                    UserName = "admin"
-                }
-            };
-            return ApiResult<TokenOutputDto>.Ok(result);
-        }
-      
-        return ApiResult<TokenOutputDto>.Ng("登录失败");
+        var result = await loginService.Login(dto);
+
+        return ApiResult<LoginOutPutDto>.Ok(result);
     }
 
     [HttpGet]

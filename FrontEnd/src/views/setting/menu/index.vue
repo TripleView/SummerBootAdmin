@@ -7,8 +7,8 @@
 				</el-header>
 				<el-main class="nopadding">
 					<el-tree ref="menu" class="menu" node-key="id" :data="menuList" :props="menuProps" draggable highlight-current
-						:expand-on-click-node="false" check-strictly show-checkbox :filter-node-method="menuFilterNode"
-						@node-click="menuClick" @node-drop="nodeDrop">
+						:check-on-click-leaf="false" :expand-on-click-node="false" check-strictly show-checkbox
+						:filter-node-method="menuFilterNode" @node-click="menuClick" @node-drop="nodeDrop">
 
 						<template #default="{ node, data }">
 							<span class="custom-tree-node">

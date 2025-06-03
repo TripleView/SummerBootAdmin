@@ -1,8 +1,7 @@
 ﻿using SummerBoot.Repository;
-using SummerBootAdmin.Model.Department;
 using SummerBootAdmin.Model.Role;
 
-namespace SummerBootAdmin.Repository.Department;
+namespace SummerBootAdmin.Repository.Role;
 
 [AutoRepository1]
 public interface IRoleAssignMenuRepository : IBaseRepository<RoleAssignMenu>

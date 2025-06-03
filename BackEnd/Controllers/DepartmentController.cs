@@ -1,19 +1,15 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using SummerBoot.Core;
 using SummerBoot.Repository;
-using SummerBoot.Repository.ExpressionParser.Parser;
 using SummerBootAdmin.Dto.Department;
 using SummerBootAdmin.Dto.Menu;
-using SummerBootAdmin.Model;
 using SummerBootAdmin.Model.Department;
-using SummerBootAdmin.Repository;
 using SummerBootAdmin.Repository.Department;
 
-namespace SummerBootAdmin;
-
+namespace SummerBootAdmin.Controllers;
+[Authorize]
 [ApiController]
 [Route("api/[controller]/[action]")]
 public class DepartmentController : ControllerBase

@@ -19,8 +19,8 @@
 					<el-button type="primary" icon="el-icon-plus" @click="add"></el-button>
 					<el-button type="danger" plain icon="el-icon-delete" :disabled="selection.length == 0"
 						@click="batch_del"></el-button>
-					<el-button type="primary" plain :disabled="selection.length == 0">分配角色</el-button>
-					<el-button type="primary" plain :disabled="selection.length == 0">密码重置</el-button>
+					<el-button type="primary" plain :disabled="selection.length == 0" @click="assignRolesHandler">分配角色</el-button>
+					<el-button type="primary" plain :disabled="selection.length == 0" @click="resetPasswordHandler">重置密码</el-button>
 				</div>
 				<div class="right-panel">
 					<div class="right-panel-search">
@@ -43,14 +43,16 @@
 						:filters="[{ text: '系统账号', value: '1' }, { text: '普通账号', value: '0' }]"></el-table-column>
 					<el-table-column label="姓名" prop="name" width="150" sortable='custom'></el-table-column>
 					<el-table-column label="所属角色" prop="roleName" width="200" sortable='custom'></el-table-column>
-					<el-table-column label="加入时间" prop="date" width="170" sortable='custom'></el-table-column>
+					<el-table-column label="加入时间" prop="createOn" width="170" sortable='custom'>
+						<template #default="scope">
+							{{ formatLocalTime(scope.row.createOn) }}
+						</template>
+					</el-table-column>
 					<el-table-column label="操作" fixed="right" align="right" width="160">
 						<template #default="scope">
 							<el-button-group>
-								<el-button text type="primary" size="small"
-									@click="table_show(scope.row, scope.$index)">查看</el-button>
-								<el-button text type="primary" size="small"
-									@click="table_edit(scope.row, scope.$index)">编辑</el-button>
+								<el-button text type="primary" size="small" @click="table_show(scope.row, scope.$index)">查看</el-button>
+								<el-button text type="primary" size="small" @click="table_edit(scope.row, scope.$index)">编辑</el-button>
 								<el-popconfirm title="确定删除吗？" @confirm="table_del(scope.row, scope.$index)">
 									<template #reference>
 										<el-button text type="primary" size="small">删除</el-button>
@@ -66,20 +68,30 @@
 	</el-container>
 
 	<save-dialog v-if="dialog.save" ref="saveDialog" @success="handleSuccess" @closed="dialog.save = false"></save-dialog>
+	<assign-roles v-if="dialog.assignRoles" ref="assignRoles" @success="handleSuccess"
+		@closed="dialog.assignRoles = false"></assign-roles>
+	<resetPassword v-if="dialog.resetPassword" ref="resetPassword" @success="handleSuccess"
+		@closed="dialog.resetPassword = false"></resetPassword>
 </template>
 
 <script>
 import saveDialog from './save'
+import assignRoles from './assignRoles'
+import resetPassword from "./resetPassword"
 
 export default {
 	name: 'user',
 	components: {
-		saveDialog
+		saveDialog,
+		assignRoles,
+		resetPassword
 	},
 	data() {
 		return {
 			dialog: {
-				save: false
+				save: false,
+				assignRoles: false,
+				resetPassword: false,
 			},
 			showGrouploading: false,
 			groupFilterText: '',
@@ -87,7 +99,8 @@ export default {
 			apiObj: this.$API.user.getUsersByPage,
 			selection: [],
 			search: {
-				name: null
+				name: null,
+				departmentId: "",
 			},
 			dicProps: {
 				value: "id",
@@ -106,6 +119,23 @@ export default {
 		this.getDepartment()
 	},
 	methods: {
+		//重置密码被点击时
+		resetPasswordHandler() {
+			this.dialog.resetPassword = true;
+			this.$nextTick(() => {
+				this.$refs.resetPassword.open().setData(this.selection)
+			})
+		},
+		//设置角色被点击时
+		assignRolesHandler() {
+			this.dialog.assignRoles = true;
+			this.$nextTick(() => {
+				this.$refs.assignRoles.open().setData(this.selection)
+			})
+		},
+		formatLocalTime(utcString) {
+			return this.$localDateFormat(utcString)
+		},
 		//添加
 		add() {
 			this.dialog.save = true
@@ -197,6 +227,7 @@ export default {
 		//部门点击事件
 		departmentClick(data) {
 
+			this.search.departmentId = data.id
 			console.log("部门点击", data)
 			this.$refs.table.reload({
 				departmentId: data.id

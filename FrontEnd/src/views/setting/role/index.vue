@@ -5,7 +5,7 @@
 				<el-button type="primary" icon="el-icon-plus" @click="add"></el-button>
 				<el-button type="danger" plain icon="el-icon-delete" :disabled="selection.length == 0"
 					@click="batch_del"></el-button>
-				<el-button type="primary" plain :disabled="selection.length != 1" @click="permission">权限设置</el-button>
+				<el-button type="primary" plain :disabled="selection.length == 0" @click="permission">权限设置</el-button>
 			</div>
 			<div class="right-panel">
 				<div class="right-panel-search">
@@ -26,15 +26,19 @@
 						<el-switch v-model="scope.row.status" @change="changeSwitch($event, scope.row)" :loading="scope.row.$switch_status" active-value="1" inactive-value="0"></el-switch>
 					</template>
 				</el-table-column> -->
-				<el-table-column label="创建时间" prop="date" width="180"></el-table-column>
+				<el-table-column label="创建时间" prop="date" width="180">
+					<template #default="scope">
+						{{ formatLocalTime(scope.row.createOn) }}
+					</template>
+				</el-table-column>
 				<el-table-column label="备注" prop="remark" min-width="150"></el-table-column>
 				<el-table-column label="操作" fixed="right" align="right" width="170">
 					<template #default="scope">
 						<el-button-group>
+							<el-button text type="primary" size="small" @click="table_show(scope.row, scope.$index)">查看</el-button>
 							<el-button text type="primary" size="small"
-								@click="table_show(scope.row, scope.$index)">查看</el-button>
-							<el-button text type="primary" size="small"
-								@click="table_edit(scope.row, scope.$index)">编辑</el-button>
+								@click="showPermissions(scope.row, scope.$index)">查看权限</el-button>
+							<el-button text type="primary" size="small" @click="table_edit(scope.row, scope.$index)">编辑</el-button>
 							<el-popconfirm title="确定删除吗？" @confirm="table_del(scope.row, scope.$index)">
 								<template #reference>
 									<el-button text type="primary" size="small">删除</el-button>
@@ -51,8 +55,7 @@
 	<save-dialog v-if="dialog.save" ref="saveDialog" @success="handleSaveSuccess"
 		@closed="dialog.save = false"></save-dialog>
 
-	<permission-dialog v-if="dialog.permission" ref="permissionDialog"
-		@closed="dialog.permission = false"></permission-dialog>
+	<permission-dialog v-if="dialog.permission" ref="permissionDialog" @closed="closePermissionDialog"></permission-dialog>
 </template>
 
 <script>
@@ -79,6 +82,14 @@ export default {
 		}
 	},
 	methods: {
+		closePermissionDialog() {
+
+			this.dialog.permission = false
+			this.$refs.table.clearSelection();
+		},
+		formatLocalTime(utcString) {
+			return this.$localDateFormat(utcString)
+		},
 		//添加
 		add() {
 			this.dialog.save = true
@@ -100,11 +111,18 @@ export default {
 				this.$refs.saveDialog.open('show').setData(row)
 			})
 		},
-		//权限设置
+		//设置角色权限
 		permission() {
 			this.dialog.permission = true
 			this.$nextTick(() => {
-				this.$refs.permissionDialog.open()
+				this.$refs.permissionDialog.open("assignRoles").setData(this.selection);
+			})
+		},
+		//查看角色权限
+		showPermissions(row) {
+			this.dialog.permission = true
+			this.$nextTick(() => {
+				this.$refs.permissionDialog.open().setData(row);
 			})
 		},
 		//删除
@@ -172,7 +190,7 @@ export default {
 		},
 		//搜索
 		upsearch() {
-
+			this.$refs.table.refresh()
 		},
 		//根据ID获取树结构
 		filterTree(id) {

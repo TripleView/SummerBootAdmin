@@ -1,12 +1,6 @@
-﻿namespace SummerBootAdmin.Dto.Menu;
+﻿namespace SummerBootAdmin.Dto.Login;
 
-public class TokenInputDto
-{
-    public string UserName { get; set; }
-    public string Password { get; set; }
-}
-
-public class TokenOutputDto
+public class LoginOutPutDto
 {
     public string Token { get; set; }
     public UserInfo UserInfo { get; set; }
