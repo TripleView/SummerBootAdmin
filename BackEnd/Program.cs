@@ -3,6 +3,7 @@ using Hangfire;
 using Hangfire.Dashboard;
 using Hangfire.Redis.StackExchange;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using MySqlConnector;
 using Newtonsoft.Json;
@@ -12,9 +13,11 @@ using SummerBoot.Repository;
 using SummerBoot.Repository.Generator;
 using SummerBootAdmin.Dto;
 using SummerBootAdmin.Dto.Hangfire;
+using SummerBootAdmin.Dto.Login;
 using SummerBootAdmin.Model;
 using SummerBootAdmin.Model.Department;
 using SummerBootAdmin.Model.Dictionary;
+using SummerBootAdmin.Model.Menu;
 using SummerBootAdmin.Model.Role;
 using SummerBootAdmin.Model.User;
 using SummerBootAdmin.Repository.Department;
@@ -56,7 +59,7 @@ namespace SummerBootAdmin
 
             builder.Services.AddCors(it =>
                 it.AddPolicy("all", x => x.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed(_ => true).AllowCredentials()));
-
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddSummerBoot();
             builder.Services.AddSummerBootRepository(it =>
             {
@@ -89,6 +92,7 @@ namespace SummerBootAdmin
                 });
             });
             var redisDbString = configuration.GetValue<string>("redisDbString");
+            builder.Services.AddSummerBootCache(x => x.UseRedis(redisDbString));
             builder.Services.AddHangfire(x => x.UseRedisStorage(redisDbString, new RedisStorageOptions()
             {
                 Db = 8
@@ -116,8 +120,8 @@ namespace SummerBootAdmin
                     };
                 });
 
-            builder.Services.AddAuthorization();
-
+            builder.Services.AddAuthorization(x => x.AddPolicy("urlPolicy", policy => policy.Requirements.Add(new SummerBootRequirement())));
+            builder.Services.AddTransient<IAuthorizationHandler, SummerBootAuthorizationHandler>();
             var app = builder.Build();
             app.UseCors("all");
             // Configure the HTTP request pipeline.
@@ -163,7 +167,7 @@ namespace SummerBootAdmin
                 {
                     typeof(Department), typeof(Dictionary), typeof(DictionaryItem),
                     typeof(Role), typeof(RoleAssignMenu),typeof(UserRole),
-                    typeof(User), typeof(MenuMeta), typeof(Menu),
+                    typeof(User), typeof(MenuMeta), typeof(Menu),typeof(MenuApiMapping)
                 });
                 foreach (var generateDatabaseSqlResult in sqls)
                 {

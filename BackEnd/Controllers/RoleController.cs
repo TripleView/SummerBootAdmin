@@ -7,6 +7,7 @@ using SummerBootAdmin.Dto.Menu;
 using SummerBootAdmin.Dto.Role;
 using SummerBootAdmin.Model.Role;
 using SummerBootAdmin.Repository;
+using SummerBootAdmin.Repository.Menu;
 using SummerBootAdmin.Repository.Role;
 
 namespace SummerBootAdmin.Controllers;

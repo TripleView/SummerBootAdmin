@@ -53,6 +53,7 @@ public class LoginService : ILoginService
         foreach (var role in roles)
         {
             claims.Add(new Claim(ClaimTypes.Role, role.Name));
+            claims.Add(new Claim("roleId", role.Id.ToString()));
         }
         var jwtSecurityKey = configuration["jwtSecurityKey"];
         var jwtDomain = configuration["jwtDomain"];

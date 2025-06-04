@@ -4,6 +4,7 @@ using SummerBoot.Repository.Generator;
 using SummerBootAdmin.Model;
 using SummerBootAdmin.Model.Department;
 using SummerBootAdmin.Model.Dictionary;
+using SummerBootAdmin.Model.Menu;
 using SummerBootAdmin.Model.Role;
 using SummerBootAdmin.Model.User;
 
@@ -24,7 +25,9 @@ public class GeneraterTableController : Controller
     {
         var sqlResults= dbGenerator1.GenerateSql(new List<Type>()
         {
-            typeof(UserRole),typeof(Menu), typeof(MenuMeta),typeof(Dictionary),typeof(DictionaryItem),typeof(Department), typeof(User), typeof(Role)
+            typeof(Department), typeof(Dictionary), typeof(DictionaryItem),
+            typeof(Role), typeof(RoleAssignMenu),typeof(UserRole),
+            typeof(User), typeof(MenuMeta), typeof(Menu),typeof(MenuApiMapping)
         });
         foreach (var sqlResult in sqlResults)
         {

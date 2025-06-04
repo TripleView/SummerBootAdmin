@@ -82,7 +82,10 @@ export default {
 				props: {
 					label: (data) => {
 						return data.meta.title
-					}
+					},
+					disabled: (data) => {
+						return this.mode == 'show'
+					},
 				}
 			},
 			grid: {
@@ -231,6 +234,21 @@ export default {
 </script>
 
 <style scoped>
+/* 只针对禁用且已勾选的 el-checkbox */
+/deep/.el-checkbox.is-disabled.is-checked .el-checkbox__inner {
+	background-color: #409EFF !important;
+	/* 你可以用品牌色或更深的蓝色 */
+	border-color: #409EFF !important;
+	opacity: 1 !important;
+}
+
+/* 让对勾更明显 */
+/deep/.el-checkbox.is-disabled.is-checked .el-checkbox__inner::after {
+	border-color: #fff !important;
+	/* 对勾用白色，和深色背景对比 */
+	opacity: 1 !important;
+}
+
 .treeMain {
 	height: 280px;
 	overflow: auto;

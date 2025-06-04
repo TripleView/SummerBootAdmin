@@ -68,11 +68,13 @@
 			</el-col>
 			<el-col :lg="12" class="apilist">
 				<h2>接口权限</h2>
+				<el-button type="primary" style="margin-bottom: 20px;" @click="batchClickhandler">批量添加</el-button>
+				<el-button type="primary" style="margin-bottom: 20px;" @click="batchDeletehandler">全部清空</el-button>
 				<sc-form-table v-model="form.apiList" :addTemplate="apiListAddTemplate" placeholder="暂无匹配接口权限">
 
 					<el-table-column prop="url" label="Api url" align="center">
 						<template #default="scope">
-							<el-select v-model="scope.row.url" placeholder="请选择" popper-class="api_select" clearable filterable>
+							<el-select v-model="scope.row.apiUrl" placeholder="请选择" popper-class="api_select" clearable filterable>
 								<el-option v-for="api in apiList" :key="api.url" :label="api.url" :value="api.url"
 									style="min-height: 40px;">
 									<!-- <span style="float: left">{{ api.url }}</span>
@@ -91,6 +93,23 @@
 			</el-col>
 		</template>
 	</el-row>
+	<el-dialog title="批量选择api" v-model="batchVisible" width="800" destroy-on-close>
+		<el-select v-model="batchApiList" placeholder="请选择" popper-class="api_select" clearable filterable multiple>
+			<el-option v-for="api in apiList" :key="api.url" :label="api.url" :value="api.url" style="min-height: 40px;">
+				<!-- <span style="float: left">{{ api.url }}</span>
+									<span style="float: right; color: #8492a6; font-size: 13px">{{ api.summary }}</span> -->
+				<template #default>
+					<div>{{ api.url }}</div>
+					<div style="font-size: 12px; color: #999;" v-if="api.summary && api.summary != ''">{{ api.summary }}
+					</div>
+				</template>
+			</el-option>
+		</el-select>
+		<template #footer>
+			<el-button @click="batchVisible = false">取 消</el-button>
+			<el-button type="primary" @click="batchAddApi">确认</el-button>
+		</template>
+	</el-dialog>
 </template>
 
 <script>
@@ -105,6 +124,8 @@ export default {
 	},
 	data() {
 		return {
+			batchApiList: [],//批量选择的api列表
+			batchVisible: false,//批量选择对话框是否可见
 			apiList: [],
 			form: {
 				id: "",
@@ -141,7 +162,7 @@ export default {
 			],
 			rules: [],
 			apiListAddTemplate: {
-				url: ""
+				apiUrl: ""
 			},
 			loading: false
 		}
@@ -161,6 +182,22 @@ export default {
 		}
 	},
 	methods: {
+		batchDeletehandler() {
+			this.form.apiList = []
+		},
+		batchAddApi() {
+			if (this.batchApiList.length > 0) {
+				for (let i = 0; i < this.batchApiList.length; i++) {
+					const element = this.batchApiList[i];
+					this.form.apiList.push({ apiUrl: element });
+				}
+			}
+			this.batchVisible = false;
+		},
+		batchClickhandler() {
+			this.batchVisible = true;
+			this.batchApiList = []
+		},
 		//简单化菜单
 		treeToMap(tree) {
 			const map = []
@@ -183,7 +220,7 @@ export default {
 			if (res.code == 20000) {
 				this.$message.success("保存成功")
 			} else {
-				this.$message.warning(res.msg)
+				this.$message.error(res.msg)
 			}
 		},
 		//表单注入数据

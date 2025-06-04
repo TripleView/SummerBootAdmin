@@ -73,7 +73,7 @@ export default {
 				this.$TOOL.data.set("USER_INFO", user.data.userInfo)
 			} else {
 				this.islogin = false
-				this.$message.warning(user.message)
+				this.$message.error(user.msg)
 				return false
 			}
 			//获取菜单
@@ -93,7 +93,7 @@ export default {
 				this.$TOOL.data.set("DASHBOARDGRID", menu.data.dashboardGrid)
 			} else {
 				this.islogin = false
-				this.$message.warning(menu.message)
+				this.$message.error(menu.msg)
 				return false
 			}
 

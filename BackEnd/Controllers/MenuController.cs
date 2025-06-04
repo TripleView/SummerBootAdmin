@@ -13,10 +13,14 @@ using SummerBootAdmin.Repository.Role;
 using SummerBootAdmin.Repository.User;
 using System.Security.Claims;
 using System.Xml.Linq;
+using SummerBootAdmin.Model.Menu;
+using SummerBootAdmin.Repository.Menu;
+using SummerBoot.Cache;
+using SummerBootAdmin.Dto.Login;
 
 namespace SummerBootAdmin.Controllers;
 
-[Authorize]
+[Authorize(Policy = "urlPolicy")]
 [ApiController]
 [Route("api/[controller]/[action]")]
 public class MenuController : ControllerBase
@@ -29,8 +33,10 @@ public class MenuController : ControllerBase
     private readonly IRoleAssignMenuRepository roleAssignMenuRepository;
     private readonly IUserRoleRepository userRoleRepository;
     private readonly IApiDescriptionGroupCollectionProvider apiDescriptionGroupCollectionProvider;
+    private readonly IMenuApiMappingRepository menuApiMappingRepository;
+    private readonly ICache cache;
 
-    public MenuController(IConfiguration configuration, IMenuRepository menuRepository, IMenuMetaRepository menuMetaRepository, IUnitOfWork1 unitOfWork1, IRoleRepository roleRepository, IRoleAssignMenuRepository roleAssignMenuRepository, IUserRoleRepository userRoleRepository, IApiDescriptionGroupCollectionProvider apiDescriptionGroupCollectionProvider)
+    public MenuController(IConfiguration configuration, IMenuRepository menuRepository, IMenuMetaRepository menuMetaRepository, IUnitOfWork1 unitOfWork1, IRoleRepository roleRepository, IRoleAssignMenuRepository roleAssignMenuRepository, IUserRoleRepository userRoleRepository, IApiDescriptionGroupCollectionProvider apiDescriptionGroupCollectionProvider, IMenuApiMappingRepository menuApiMappingRepository, ICache cache)
     {
         this.configuration = configuration;
         this.menuRepository = menuRepository;
@@ -40,17 +46,30 @@ public class MenuController : ControllerBase
         this.roleAssignMenuRepository = roleAssignMenuRepository;
         this.userRoleRepository = userRoleRepository;
         this.apiDescriptionGroupCollectionProvider = apiDescriptionGroupCollectionProvider;
+        this.menuApiMappingRepository = menuApiMappingRepository;
+        this.cache = cache;
     }
 
     [HttpPost]
     public async Task<ApiResult<Menu>> AddMenu([FromBody] Menu menu)
     {
+        await CheckMenu(menu);
         unitOfWork1.BeginTransaction();
         var dbMenu = await menuRepository.InsertAsync(menu);
         if (menu.Meta != null)
         {
             menu.Meta.MenuId = dbMenu.Id;
             await menuMetaRepository.InsertAsync(menu.Meta);
+        }
+
+        if (menu.ApiList?.Count > 0)
+        {
+            var menuApiMappings = menu.ApiList.Select(x =>
+            {
+                x.MenuId = menu.Id;
+                return x;
+            }).ToList();
+            await menuApiMappingRepository.InsertAsync(menuApiMappings);
         }
 
         if (menu.Children != null && menu.Children.Count > 0)
@@ -63,12 +82,33 @@ public class MenuController : ControllerBase
         }
 
         unitOfWork1.Commit();
+        var cacheKey = LoginConst.RoleApisKey;
+        await cache.RemoveAsync(cacheKey);
         return ApiResult<Menu>.Ok(dbMenu);
+    }
+
+    private async Task CheckMenu(Menu menu, bool isUpdate = false)
+    {
+        if (menu.ApiList?.Count > 0)
+        {
+            if (menu.ApiList.Any(x => x.ApiUrl.IsNullOrWhiteSpace()))
+            {
+                throw new Exception("api url不能为空");
+            }
+
+            var repeatApis = menu.ApiList.Select(x => x.ApiUrl).GroupBy(x => x).Where(x => x.ToList().Count > 1)
+                .Select(x => x.Key).ToList();
+            if (repeatApis.Any())
+            {
+                throw new Exception("以下api重复:" + repeatApis.StringJoin(";"));
+            }
+        }
     }
 
     [HttpPost]
     public async Task<ApiResult<Menu>> UpdateMenu([FromBody] Menu menu)
     {
+        await CheckMenu(menu);
         unitOfWork1.BeginTransaction();
         var dbMenu = await menuRepository.GetAsync(menu.Id);
         if (dbMenu == null)
@@ -84,7 +124,21 @@ public class MenuController : ControllerBase
             await menuMetaRepository.UpdateAsync(menu.Meta);
         }
 
+        await menuApiMappingRepository.DeleteAsync(x => x.MenuId == menu.Id);
+
+        if (menu.ApiList?.Count > 0)
+        {
+            var menuApiMappings = menu.ApiList.Select(x =>
+            {
+                x.MenuId = menu.Id;
+                return x;
+            }).ToList();
+            await menuApiMappingRepository.InsertAsync(menuApiMappings);
+        }
+
         unitOfWork1.Commit();
+        var cacheKey = LoginConst.RoleApisKey;
+        await cache.RemoveAsync(cacheKey);
         return ApiResult<Menu>.Ok(menu);
     }
 
@@ -102,6 +156,8 @@ public class MenuController : ControllerBase
             await DeleteMenusByRecursion(id);
         }
         unitOfWork1.Commit();
+        var cacheKey = LoginConst.RoleApisKey;
+        await cache.RemoveAsync(cacheKey);
         return ApiResult<bool>.Ok(true);
     }
 
@@ -109,6 +165,7 @@ public class MenuController : ControllerBase
     {
         await menuRepository.DeleteAsync(it => it.Id == menuId);
         await menuMetaRepository.DeleteAsync(it => it.MenuId == menuId);
+        await menuApiMappingRepository.DeleteAsync(it => it.MenuId == menuId);
 
         var childrenMenus = await menuRepository.Where(it => it.ParentId == menuId).ToListAsync();
         if (childrenMenus.Count == 0)
@@ -135,6 +192,12 @@ public class MenuController : ControllerBase
             menus = await menuRepository.ToListAsync();
         }
 
+        var menuApiMappings = await menuApiMappingRepository.Where(x => menus.Select(z => z.Id).Contains(x.MenuId)).ToListAsync();
+        foreach (var menu in menus)
+        {
+            menu.ApiList = menuApiMappings.Where(x => x.MenuId == menu.Id).ToList();
+        }
+
         var menuMetas = await menuMetaRepository.ToListAsync();
 
         var result = AddMenuTrees(menus, menuMetas, null);
@@ -152,10 +215,95 @@ public class MenuController : ControllerBase
             await this.AddMenu(menu);
         }
 
-        return true;
+        await InitMenuApiMapping();
 
+        return true;
+    }
+    private async Task<bool> InitMenuApiMapping()
+    {
+        var menus = await menuRepository.GetAllAsync();
+        await InitSingleMenuApiMapping(menus, "user", new List<string>()
+        {
+            "api/Role/List",
+            "api/User/AssignRoles",
+            "api/User/GetUsersByPage",
+            "api/User/AddUser",
+            "api/User/UpdateUser",
+            "api/User/ResetPassword",
+            "api/User/DeleteUsers",
+            "api/Department/List",
+        });
+
+        await InitSingleMenuApiMapping(menus, "role", new List<string>()
+        {
+            "api/Role/List",
+            "api/Role/AddRole",
+            "api/Role/UpdateRole",
+            "api/Role/DeleteRoles",
+            "api/Role/GetRolesByPage",
+            "api/Role/GetRolePermissions",
+            "api/Role/RoleAssignPermissions",
+            "api/menu/list",
+            "api/Department/List",
+        });
+
+        await InitSingleMenuApiMapping(menus, "dept", new List<string>()
+        {
+            "api/Department/DeleteDepartments",
+            "api/Department/List",
+            "api/Department/AddDepartment",
+            "api/Department/UpdateDepartment",
+        });
+
+        await InitSingleMenuApiMapping(menus, "dic", new List<string>()
+        {
+            "api/Dictionary/addDictionary",
+            "api/Dictionary/updateDictionary",
+            "api/Dictionary/List",
+            "api/Dictionary/listItem",
+            "api/Dictionary/DeleteDictionarys",
+            "api/Dictionary/DeleteDictionaryItems",
+            "api/Dictionary/addDictionaryItem",
+            "api/Dictionary/updateDictionaryItem",
+        });
+
+        await InitSingleMenuApiMapping(menus, "settingMenu", new List<string>()
+        {
+            "api/menu/list",
+            "api/menu/addMenu",
+            "api/menu/deleteMenus",
+            "api/menu/updateMenu",
+            "api/menu/GetApiList",
+        });
+
+        await cache.RemoveAsync(LoginConst.RoleApisKey);
+        return true;
     }
 
+    private async Task<bool> InitSingleMenuApiMapping(List<Menu> menus, string menuName, List<string> apis)
+    {
+        var menu = menus.FirstOrDefault(x => x.Name == menuName);
+        if (menu == null)
+        {
+            throw new Exception($"菜单[{menuName}]不存在");
+        }
+
+        if (apis == null || apis.Count == 0)
+        {
+            throw new Exception("apis为空");
+        }
+        foreach (var api in apis)
+        {
+            var menuApiMapping = new MenuApiMapping()
+            {
+                MenuId = menu.Id,
+                ApiUrl = api
+            };
+            await menuApiMappingRepository.InsertAsync(menuApiMapping);
+        }
+
+        return true;
+    }
 
     private List<Menu> AddMenuTrees(List<Menu> menus, List<MenuMeta> menuMetas, int? parentId)
     {
@@ -224,11 +372,7 @@ public class MenuController : ControllerBase
 
         return ApiResult<MenuOutPutDto>.Ok(result);
     }
-    [HttpGet]
-    public async Task<ApiResult<string>> Version()
-    {
-        return ApiResult<string>.Ok("1.6.9");
-    }
+
     [HttpGet]
     public async Task<ApiResult<List<GetApiListOutputDto>>> GetApiList()
     {
