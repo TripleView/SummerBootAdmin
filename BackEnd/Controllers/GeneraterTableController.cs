@@ -9,7 +9,7 @@ using SummerBootAdmin.Model.Role;
 using SummerBootAdmin.Model.User;
 
 namespace SummerBootAdmin.Controllers;
-[Authorize]
+[Authorize(Policy = "urlPolicy")]
 [ApiController]
 [Route("api/[controller]/[action]")]
 public class GeneraterTableController : Controller

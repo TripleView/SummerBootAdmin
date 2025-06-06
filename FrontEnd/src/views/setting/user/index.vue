@@ -98,6 +98,7 @@ export default {
 			group: [],
 			apiObj: this.$API.user.getUsersByPage,
 			selection: [],
+			currentDepartmentId: '',//当前部门id
 			search: {
 				name: null,
 				departmentId: "",
@@ -140,7 +141,7 @@ export default {
 		add() {
 			this.dialog.save = true
 			this.$nextTick(() => {
-				this.$refs.saveDialog.open()
+				this.$refs.saveDialog.open().setDepartmentId(this.currentDepartmentId)
 			})
 		},
 		//编辑
@@ -226,9 +227,8 @@ export default {
 		},
 		//部门点击事件
 		departmentClick(data) {
-
+			this.currentDepartmentId = data.id;
 			this.search.departmentId = data.id
-			console.log("部门点击", data)
 			this.$refs.table.reload({
 				departmentId: data.id
 			})

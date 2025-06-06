@@ -10,7 +10,7 @@ using SummerBootAdmin.Repository.Role;
 using SummerBootAdmin.Repository.User;
 
 namespace SummerBootAdmin.Controllers;
-[Authorize]
+[Authorize(Policy = "urlPolicy")]
 [ApiController]
 [Route("api/[controller]/[action]")]
 public class UserController : ControllerBase

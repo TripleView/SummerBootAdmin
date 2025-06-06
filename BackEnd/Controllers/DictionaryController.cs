@@ -9,7 +9,7 @@ using SummerBootAdmin.Model.Dictionary;
 using SummerBootAdmin.Repository.Dictionary;
 
 namespace SummerBootAdmin.Controllers;
-[Authorize]
+[Authorize(Policy = "urlPolicy")]
 [ApiController]
 [Route("api/[controller]/[action]")]
 public class DictionaryController : ControllerBase

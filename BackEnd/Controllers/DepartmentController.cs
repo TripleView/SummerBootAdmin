@@ -9,7 +9,7 @@ using SummerBootAdmin.Model.Department;
 using SummerBootAdmin.Repository.Department;
 
 namespace SummerBootAdmin.Controllers;
-[Authorize]
+[Authorize(Policy = "urlPolicy")]
 [ApiController]
 [Route("api/[controller]/[action]")]
 public class DepartmentController : ControllerBase

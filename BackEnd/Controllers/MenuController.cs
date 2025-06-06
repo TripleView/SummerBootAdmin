@@ -326,7 +326,7 @@ public class MenuController : ControllerBase
     public async Task<ApiResult<MenuOutPutDto>> GetMenus()
     {
         var menus = await menuRepository.ToListAsync();
-
+        //await InitMenuApiMapping();
         if (menus.Count == 0)
         {
             await InitMenuData();

@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SummerBoot.Cache;
 using SummerBoot.Core;
 using SummerBoot.Repository;
+using SummerBootAdmin.Dto.Login;
 using SummerBootAdmin.Dto.Menu;
 using SummerBootAdmin.Dto.Role;
 using SummerBootAdmin.Model.Role;
@@ -12,7 +14,7 @@ using SummerBootAdmin.Repository.Role;
 
 namespace SummerBootAdmin.Controllers;
 
-[Authorize]
+[Authorize(Policy = "urlPolicy")]
 [ApiController]
 [Route("api/[controller]/[action]")]
 public class RoleController : ControllerBase
@@ -23,8 +25,9 @@ public class RoleController : ControllerBase
     private readonly IMapper mapper;
     private readonly IRoleAssignMenuRepository roleAssignMenuRepository;
     private readonly IMenuRepository menuRepository;
+    private readonly ICache cache;
 
-    public RoleController(IConfiguration configuration, IRoleRepository roleRepository, IUnitOfWork1 unitOfWork1, IMapper mapper, IRoleAssignMenuRepository roleAssignMenuRepository, IMenuRepository menuRepository)
+    public RoleController(IConfiguration configuration, IRoleRepository roleRepository, IUnitOfWork1 unitOfWork1, IMapper mapper, IRoleAssignMenuRepository roleAssignMenuRepository, IMenuRepository menuRepository, ICache cache)
     {
         this.configuration = configuration;
         this.roleRepository = roleRepository;
@@ -32,6 +35,7 @@ public class RoleController : ControllerBase
         this.mapper = mapper;
         this.roleAssignMenuRepository = roleAssignMenuRepository;
         this.menuRepository = menuRepository;
+        this.cache = cache;
     }
 
     [HttpPost]
@@ -158,6 +162,7 @@ public class RoleController : ControllerBase
         }
 
         unitOfWork1.Commit();
+        await cache.RemoveAsync(LoginConst.RoleApisKey);
         return ApiResult<bool>.Ok(true);
     }
 

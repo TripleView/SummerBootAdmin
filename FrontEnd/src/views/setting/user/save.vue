@@ -180,9 +180,16 @@ export default {
 		//表单注入数据
 		setData(data) {
 			this.form = this.$clone(data)
-
+			return this;
 			//可以和上面一样单个注入，也可以像下面一样直接合并进去
 			//Object.assign(this.form, data)
+		},
+		setDepartmentId(departmentId) {
+			if (departmentId) {
+				this.form.departmentId = departmentId
+			}
+
+			return this;
 		}
 	}
 }

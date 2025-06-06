@@ -5,6 +5,7 @@ using Hangfire.Redis.StackExchange;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using MySqlConnector;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -23,6 +24,7 @@ using SummerBootAdmin.Model.User;
 using SummerBootAdmin.Repository.Department;
 using SummerBootAdmin.Repository.Role;
 using SummerBootAdmin.Repository.User;
+using SummerBootAdmin.Service;
 
 namespace SummerBootAdmin
 {
@@ -51,7 +53,33 @@ namespace SummerBootAdmin
             });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                {
+                    Description = "JWT授权token前面需要加上字段Bearer与一个空格,如Bearer token",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] { }
+                    }
+                });
+
+            });
             builder.Services.AddAutoMapper(it =>
             {
                 it.AddProfile<SummerbootProfile>();
@@ -71,24 +99,8 @@ namespace SummerBootAdmin
 
                     //�����ݿ����ɽӿ�
                     x.BindDbGeneratorType<IDbGenerator1>();
-
-                    //�󶨲���ǰ�ص�
-                    x.BeforeInsert += entity =>
-                    {
-                        if (entity is BaseEntity baseEntity)
-                        {
-                            baseEntity.CreateOn = DateTime.Now;
-                        }
-                    };
-
-                    //�󶨸���ǰ�ص�
-                    x.BeforeUpdate += entity =>
-                    {
-                        if (entity is BaseEntity baseEntity)
-                        {
-                            baseEntity.LastUpdateOn = DateTime.Now;
-                        }
-                    };
+                    //实体类在插入或更新前进行预处理，比如给创建人,更新人,创建时间，更新时间赋值
+                    x.BindEntityClassHandlerType(typeof(MyEntityClassHandler));
                 });
             });
             var redisDbString = configuration.GetValue<string>("redisDbString");
