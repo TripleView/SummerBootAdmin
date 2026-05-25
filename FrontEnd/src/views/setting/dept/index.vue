@@ -14,7 +14,8 @@
 			</div>
 		</el-header>
 		<el-main class="nopadding">
-			<scTable ref="table" :apiObj="apiObj" row-key="id" @selection-change="selectionChange" hidePagination>
+			<scTable httpMethod="get" ref="table" :apiObj="apiObj" row-key="id" @selection-change="selectionChange"
+				hidePagination>
 				<el-table-column type="selection" width="50"></el-table-column>
 				<el-table-column label="部门名称" prop="name" width="250"></el-table-column>
 				<el-table-column label="排序" prop="sort" width="150"></el-table-column>

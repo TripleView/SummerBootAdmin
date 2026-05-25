@@ -11,9 +11,9 @@
 	<div class="scTable" :style="{ 'height': _height }" ref="scTableMain" v-loading="loading">
 		<div class="scTable-table" :style="{ 'height': _table_height }">
 			<el-table v-bind="$attrs" :data="tableData" :row-key="rowKey" :key="toggleIndex" ref="scTable"
-				:height="height == 'auto' ? null : '100%'" :size="config.size" :border="config.border"
-				:stripe="config.stripe" :summary-method="remoteSummary ? remoteSummaryMethod : summaryMethod"
-				@sort-change="sortChange" @filter-change="filterChange">
+				:height="height == 'auto' ? null : '100%'" :size="config.size" :border="config.border" :stripe="config.stripe"
+				:summary-method="remoteSummary ? remoteSummaryMethod : summaryMethod" @sort-change="sortChange"
+				@filter-change="filterChange">
 				<slot></slot>
 				<template v-for="(item, index) in userColumn" :key="index">
 					<el-table-column v-if="!item.hide" :column-key="item.prop" :label="item.label" :prop="item.prop"
@@ -83,7 +83,7 @@ export default {
 		columnSetting
 	},
 	props: {
-
+		httpMethod: { type: String, default: "get" },
 		tableName: { type: String, default: "" },
 		apiObj: { type: Object, default: () => { } },
 		params: { type: Object, default: () => ({}) },
@@ -105,6 +105,7 @@ export default {
 		hideRefresh: { type: Boolean, default: false },
 		hideSetting: { type: Boolean, default: false },
 		paginationLayout: { type: String, default: config.paginationLayout },
+		autoLoadData: { type: Boolean, default: true },
 	},
 	watch: {
 		//监听从props里拿到值了
@@ -161,7 +162,10 @@ export default {
 		}
 		//判断是否静态数据
 		if (this.apiObj) {
-			this.getData();
+			if (this.autoLoadData) {
+				this.getData();
+			}
+
 		} else if (this.data) {
 			this.tableData = this.data;
 			this.total = this.tableData.length
@@ -185,7 +189,7 @@ export default {
 		async getData() {
 			this.loading = true;
 			var reqData = {
-				[config.request.page]: this.currentPage,
+				[config.request.pageNumber]: this.currentPage,
 				[config.request.pageSize]: this.scPageSize,
 				[config.request.prop]: this.prop,
 				[config.request.order]: this.order
@@ -196,34 +200,39 @@ export default {
 			}
 			Object.assign(reqData, this.tableParams)
 
+			var res = {}
 			try {
-				var res = await this.apiObj.get(reqData);
-
+				if (this.httpMethod == "get") {
+					res = await this.apiObj.get(reqData);
+				} else if (this.httpMethod == "post") {
+					res = await this.apiObj.post(reqData);
+				}
+				// console.log("初始数据", this.$clone(res))
 			} catch (error) {
+				console.log("请求报错", error)
 				this.loading = false;
 				this.emptyText = error.statusText;
 				return false;
 			}
-			try {
-				var response = config.parseData(res);
-			} catch (error) {
+
+			// console.log("this.hidePagination", this.hidePagination)
+
+			if (res.code != config.successCode) {
 				this.loading = false;
-				this.emptyText = "数据格式错误";
-				return false;
-			}
-			if (response.code != config.successCode) {
-				this.loading = false;
-				this.emptyText = response.msg;
+				this.emptyText = res.msg;
 			} else {
 				this.emptyText = "暂无数据";
 				if (this.hidePagination) {
-					this.tableData = response.data || [];
+					var data = res.data;
+					this.tableData = data || [];
+					this.total = data.length || 0;
 				} else {
-					console.log("表格返回值", response)
-					this.tableData = response.rows || [];
+					var data = res.data;
+					this.tableData = data.data || [];
+					this.total = data.totalPages || 0;
 				}
-				this.total = response.total || 0;
-				this.summary = response.summary || {};
+
+				this.summary = {};
 				this.loading = false;
 			}
 			this.$refs.scTable.setScrollTop(0)
@@ -241,6 +250,7 @@ export default {
 		//刷新数据
 		refresh() {
 			this.$refs.scTable.clearSelection();
+			// console.log("sctable")
 			this.getData();
 		},
 		//更新数据 合并上一次params

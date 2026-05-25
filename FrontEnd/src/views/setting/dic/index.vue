@@ -38,8 +38,8 @@
 			</el-header>
 			<el-main class="nopadding">
 
-				<sbTable ref="table" :apiObj="listApi" row-key="id" :params="listApiParams" @selection-change="selectionChange"
-					stripe :paginationLayout="'prev, pager, next'">
+				<scTable httpMethod="post" ref="table" :apiObj="listApi" row-key="id" :params="listApiParams"
+					@selection-change="selectionChange" stripe :paginationLayout="'prev, pager, next'">
 					<el-table-column type="selection" width="50"></el-table-column>
 					<el-table-column label="" width="60">
 						<template #default>
@@ -66,7 +66,7 @@
 							</el-button-group>
 						</template>
 					</el-table-column>
-				</sbTable>
+				</scTable>
 			</el-main>
 		</el-container>
 	</el-container>

@@ -15,7 +15,7 @@
 			</div>
 		</el-header>
 		<el-main class="nopadding">
-			<sbTable ref="table" :apiObj="apiObj" row-key="id" @selection-change="selectionChange" stripe>
+			<scTable httpMethod="post" ref="table" :apiObj="apiObj" row-key="id" @selection-change="selectionChange" stripe>
 				<el-table-column type="selection" width="50"></el-table-column>
 				<el-table-column label="#" type="index" width="50"></el-table-column>
 				<el-table-column label="角色名称" prop="name" width="150"></el-table-column>
@@ -48,7 +48,7 @@
 					</template>
 				</el-table-column>
 
-			</sbTable>
+			</scTable>
 		</el-main>
 	</el-container>
 

@@ -5,7 +5,12 @@
 //全局可使用 this.$CONFIG.MY_KEY 访问
 
 export default {
-	MY_API_URL: process.env.VUE_APP_MY_API_BASEURL,
+	MY_API_URL:
+		process.env.NODE_ENV === "development" &&
+		process.env.VUE_APP_PROXY === "true"
+			? "/api"
+			: process.env.VUE_APP_API_BASEURL,
+	// process.env.VUE_APP_MY_API_BASEURL,
 	//是否显示第三方授权登录
-	MY_SHOW_LOGIN_OAUTH: true
-}
+	MY_SHOW_LOGIN_OAUTH: true,
+};

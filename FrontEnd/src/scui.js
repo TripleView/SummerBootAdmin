@@ -5,7 +5,6 @@ import http from "./utils/request";
 import { permission, rolePermission } from "./utils/permission";
 
 import scTable from "./components/scTable";
-import sbTable from "./components/sbTable";
 import scTableColumn from "./components/scTable/column.js";
 import scFilterBar from "./components/scFilterBar";
 import scUpload from "./components/scUpload";
@@ -51,7 +50,6 @@ export default {
 		//注册全局组件
 		app.component("treeSelect", Treeselect);
 		app.component("scTable", scTable);
-		app.component("sbTable", sbTable);
 		app.component("scTableColumn", scTableColumn);
 		app.component("scFilterBar", scFilterBar);
 		app.component("scUpload", scUpload);
