@@ -3,8 +3,8 @@ import tool from "@/utils/tool";
 import { createI18n } from "vue-i18n";
 // import el_en from "element-plus/lib/locale/lang/en";
 import { ElLocale } from "element-plus";
-import el_en from "element-plus/es/locale/lang/en";
 import el_zh_cn from "element-plus/es/locale/lang/zh-cn";
+import el_en from "element-plus/es/locale/lang/en";
 
 import zh_cn from "./lang/zh-cn.js";
 import en from "./lang/en.js";

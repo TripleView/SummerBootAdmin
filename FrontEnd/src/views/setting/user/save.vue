@@ -77,15 +77,7 @@ export default {
 					{ required: true, message: '请输入真实姓名' }
 				],
 				password: [
-					{ required: true, message: '请输入登录密码' },
-					{
-						validator: (rule, value, callback) => {
-							if (this.form.password2 !== '') {
-								this.$refs.dialogForm.validateField('password2');
-							}
-							callback();
-						}
-					}
+					{ required: true, message: '请输入登录密码' }
 				],
 				password2: [
 					{ required: true, message: '请再次输入密码' },
