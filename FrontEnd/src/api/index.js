@@ -1,11 +1,23 @@
-/**
- * @description 自动import导入所有 api 模块
- */
+const files = require.context("./model", true, /\.js$/);
 
-const files = require.context('./model', false, /\.js$/)
-const modules = {}
+const modules = {};
+
 files.keys().forEach((key) => {
-	modules[key.replace(/(\.\/|\.js)/g, '')] = files(key).default
-})
+	const modulePath = key.replace(/^\.\/|\.js$/g, "").split("/");
 
-export default modules
+	const moduleName = modulePath.pop();
+
+	let current = modules;
+
+	modulePath.forEach((directory) => {
+		if (!current[directory]) {
+			current[directory] = {};
+		}
+
+		current = current[directory];
+	});
+
+	current[moduleName] = files(key).default;
+});
+
+export default modules;

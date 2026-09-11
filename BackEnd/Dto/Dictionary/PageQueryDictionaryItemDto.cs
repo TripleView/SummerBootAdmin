@@ -1,4 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
+using System.Reflection.Metadata.Ecma335;
 using SummerBoot.Repository;
 
 namespace SummerBootAdmin.Dto.Dictionary;
@@ -9,4 +9,6 @@ public class PageQueryDictionaryItemDto : IPageable
     public int PageSize { get; set; }
 
     public int DictionaryId { get; set; }
+
+    public List<OrderByItem> OrderByItems { set; get; }
 }

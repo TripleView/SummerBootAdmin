@@ -10,17 +10,21 @@ using MySqlConnector;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using SummerBoot.Core;
+using SummerBoot.Mysql;
 using SummerBoot.Repository;
+using SummerBoot.Repository.Core;
 using SummerBoot.Repository.Generator;
 using SummerBootAdmin.Dto;
 using SummerBootAdmin.Dto.Hangfire;
 using SummerBootAdmin.Dto.Login;
 using SummerBootAdmin.Model;
+using SummerBootAdmin.Model.CodeGenerator;
 using SummerBootAdmin.Model.Department;
 using SummerBootAdmin.Model.Dictionary;
 using SummerBootAdmin.Model.Menu;
 using SummerBootAdmin.Model.Role;
 using SummerBootAdmin.Model.User;
+using SummerBootAdmin.Repository.CodeGenerator;
 using SummerBootAdmin.Repository.Department;
 using SummerBootAdmin.Repository.Role;
 using SummerBootAdmin.Repository.User;
@@ -46,9 +50,9 @@ namespace SummerBootAdmin
             });
             builder.Services.AddSummerBootMvcExtension(it =>
             {
-                //ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½È«ï¿½Ö´ï¿½ï¿½ï¿½ï¿½ï¿½
+                //È«¾Ö´íÎó´¦Àí
                 it.UseGlobalExceptionHandle = true;
-                //ï¿½Ç·ï¿½ï¿½ï¿½ï¿½Ã²ï¿½ï¿½ï¿½Ğ£ï¿½é´¦ï¿½ï¿½
+                //¿ªÆô²ÎÊıĞ£Ñé
                 it.UseValidateParameterHandle = true;
             });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -57,7 +61,7 @@ namespace SummerBootAdmin
             {
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
-                    Description = "JWTæˆæƒtokenå‰é¢éœ€è¦åŠ ä¸Šå­—æ®µBearerä¸ä¸€ä¸ªç©ºæ ¼,å¦‚Bearer token",
+                    Description = "JWTÊÚÈ¨tokenÇ°ÃæĞèÒª¼ÓÉÏ×Ö¶ÎBearerÓëÒ»¸ö¿Õ¸ñ,ÈçBearer token",
                     Name = "Authorization",
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.ApiKey,
@@ -92,14 +96,15 @@ namespace SummerBootAdmin
             builder.Services.AddSummerBootRepository(it =>
             {
                 var connectionString = configuration.GetValue<string>("mysqlDbConnectionString");
-                it.AddDatabaseUnit<MySqlConnection, IUnitOfWork1>(connectionString, x =>
-                {
-                    //Í¨ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½×¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ó¶¨²Ö´ï¿½
-                    x.BindRepositoriesWithAttribute<AutoRepository1Attribute>();
 
-                    //ï¿½ï¿½ï¿½ï¿½ï¿½İ¿ï¿½ï¿½ï¿½ï¿½É½Ó¿ï¿½
+                it.AddMysql<IUnitOfWork1>(connectionString, x =>
+                {
+                    //?°ó¶¨²Ö´¢
+                    x.BindRepositoriesWithAttribute<AutoRepository1Attribute>();
+                    x.LogSql += X_LogSql;
+                    //°ó¶¨Éú³ÉÆ÷
                     x.BindDbGeneratorType<IDbGenerator1>();
-                    //å®ä½“ç±»åœ¨æ’å…¥æˆ–æ›´æ–°å‰è¿›è¡Œé¢„å¤„ç†ï¼Œæ¯”å¦‚ç»™åˆ›å»ºäºº,æ›´æ–°äºº,åˆ›å»ºæ—¶é—´ï¼Œæ›´æ–°æ—¶é—´èµ‹å€¼
+                    //ÊµÌåÀàÔÚ²åÈë»ò¸üĞÂÇ°½øĞĞÔ¤´¦Àí£¬±ÈÈç¸ø´´½¨ÈË,¸üĞÂÈË,´´½¨Ê±¼ä£¬¸üĞÂÊ±¼ä¸³Öµ
                     x.BindEntityClassHandlerType(typeof(MyEntityClassHandler));
                 });
             });
@@ -109,10 +114,10 @@ namespace SummerBootAdmin
             {
                 Db = 8
             }));
-            //æ·»åŠ hangfireè®¤è¯
+            //Ìí¼ÓhangfireÈÏÖ¤
             builder.Services.AddSingleton<IDashboardAuthorizationFilter, HangfireAuthorizationFilter>();
 
-            // æ·»åŠ è®¤è¯æœåŠ¡
+            // Ìí¼ÓÈÏÖ¤·şÎñ
             builder.Services.AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -145,7 +150,7 @@ namespace SummerBootAdmin
 
             app.MapControllers();
 
-            //hangfireæ§åˆ¶ä»ªè¡¨ç›˜çš„è®¿é—®è·¯å¾„å’Œæˆæƒé…ç½®
+            //hangfire¿ØÖÆÒÇ±íÅÌµÄ·ÃÎÊÂ·¾¶ºÍÊÚÈ¨ÅäÖÃ
             var hanfireDashboardAuthorizationFilters = app.Services.GetService<IDashboardAuthorizationFilter>();
             app.UseHangfireDashboard("/hangfire", new Hangfire.DashboardOptions
             {
@@ -162,9 +167,14 @@ namespace SummerBootAdmin
             app.Run();
         }
 
+        private static void X_LogSql(SqlLogContext sqlLogContext)
+        {
+            Console.WriteLine("sql:" + sqlLogContext.Sql);
+        }
+
         /// <summary>
         /// Initialize the database
-        /// åˆå§‹åŒ–æ•°æ®åº“
+        /// ³õÊ¼»¯Êı¾İ¿â
         /// </summary>
         /// <param name="service"></param>
         /// <returns></returns>
@@ -173,7 +183,7 @@ namespace SummerBootAdmin
             var scopeServiceProvider = service.CreateScope().ServiceProvider;
             var dbGenerator = scopeServiceProvider.GetService<IDbGenerator1>();
 
-            if (dbGenerator.GetAllTableNames().Count == 0)
+            if (dbGenerator.GetAllTableNames().Count == 0 || true)
             {
                 var sqls = dbGenerator.GenerateSql(new List<Type>()
                 {
@@ -194,7 +204,7 @@ namespace SummerBootAdmin
             var adminUser = await userRepository.FirstOrDefaultAsync(x => x.Account == "admin");
             if (adminUser == null)
             {
-                #region ç®¡ç†å‘˜è§’è‰²
+                #region ¹ÜÀíÔ±½ÇÉ«
 
                 var adminRole = await roleRepository.FirstOrDefaultAsync(x => x.Name == "admin");
                 if (adminRole == null)
@@ -209,7 +219,7 @@ namespace SummerBootAdmin
 
                 #endregion
 
-                #region ç®¡ç†å‘˜éƒ¨é—¨
+                #region ¹ÜÀíÔ±²¿ÃÅ
 
 
                 var systemDept = await departmentRepository.FirstOrDefaultAsync(x => x.Name == "System");
@@ -240,6 +250,42 @@ namespace SummerBootAdmin
                 };
                 await userRoleRepository.InsertAsync(userRole);
             }
+
+            //³õÊ¼»¯´úÂëÉú³ÉÒ³Ãæ
+            var databaseEntityFieldTypeRepository = scopeServiceProvider.GetService<IDatabaseEntityFieldTypeRepository>();
+            if (databaseEntityFieldTypeRepository.Count() == 0)
+            {
+                var dic = new Dictionary<string, string>()
+                {
+                    ["string"] = "string",
+                    ["int"] = "int",
+                    ["bool"] = "bool",
+                    ["object"] = "object",
+                    ["byte"] = "byte",
+                    ["sbyte"] = "sbyte",
+                    ["char"] = "char",
+                    ["decimal"] = "decimal",
+                    ["double"] = "double",
+                    ["float"] = "float",
+                    ["uint"] = "uint",
+                    ["long"] = "long",
+                    ["ulong"] = "ulong",
+                    ["short"] = "short",
+                    ["ushort"] = "ushort",
+                    ["nint"] = "nint",
+                    ["nuint"] = "nuint",
+                    ["datetime"] = "datetime",
+                };
+                var i = 0;
+                var databaseEntityFieldTypes = dic.Select(x => new DatabaseEntityFieldType()
+                {
+                    Value = x.Key,
+                    Name = x.Value,
+                    OrderIndex = i++
+                }).ToList();
+                await databaseEntityFieldTypeRepository.FastBatchInsertAsync(databaseEntityFieldTypes);
+            }
+
         }
     }
 }

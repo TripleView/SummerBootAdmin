@@ -1,4 +1,4 @@
-ï»¿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
@@ -6,6 +6,7 @@ using SummerBoot.Core;
 using SummerBoot.Repository;
 using SummerBootAdmin.Dto.Login;
 using SummerBootAdmin.Model.Role;
+using SummerBootAdmin.Repository.Role;
 using SummerBootAdmin.Repository.User;
 
 namespace SummerBootAdmin.Service;
@@ -21,12 +22,14 @@ public class LoginService : ILoginService
     private readonly IConfiguration configuration;
     private readonly IUserRepository userRepository;
     private readonly IUserRoleRepository userRoleRepository;
+    private readonly IRoleRepository roleRepository;
 
-    public LoginService(IConfiguration configuration, IUserRepository userRepository, IUserRoleRepository userRoleRepository)
+    public LoginService(IConfiguration configuration, IUserRepository userRepository, IUserRoleRepository userRoleRepository, IRoleRepository roleRepository)
     {
         this.configuration = configuration;
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
+        this.roleRepository = roleRepository;
     }
 
     public async Task<LoginOutPutDto> Login(LoginInputDto dto)
@@ -35,10 +38,10 @@ public class LoginService : ILoginService
         var user = await userRepository.FirstOrDefaultAsync(x => x.Account == dto.Account);
         if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
         {
-            throw new Exception("ç”¨æˆ·å/å¯†ç é”™è¯¯ï¼Œè¯·ç¡®è®¤");
+            throw new Exception("ÓÃ»§Ãû/ÃÜÂë´íÎó£¬ÇëÈ·ÈÏ");
         }
 
-        var roles = await userRoleRepository.InnerJoin(new Role(), x => x.T1.RoleId == x.T2.Id).Where(x => x.T1.UserId == user.Id)
+        var roles = await userRoleRepository.InnerJoin(roleRepository, x => x.T1.RoleId == x.T2.Id).Where(x => x.T1.UserId == user.Id)
             .Select(x => x.T2).ToListAsync();
 
         var claims = new List<Claim>()

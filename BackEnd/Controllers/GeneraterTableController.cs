@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SummerBoot.Repository.Generator;
 using SummerBootAdmin.Model;
+using SummerBootAdmin.Model.CodeGenerator;
 using SummerBootAdmin.Model.Department;
 using SummerBootAdmin.Model.Dictionary;
 using SummerBootAdmin.Model.Menu;
@@ -20,11 +21,16 @@ public class GeneraterTableController : Controller
     {
         this.dbGenerator1 = dbGenerator1;
     }
+
+#if DEBUG
+    [AllowAnonymous]
+#endif
     [HttpGet]
     public IActionResult Index()
     {
         var sqlResults= dbGenerator1.GenerateSql(new List<Type>()
         {
+            typeof(DatabaseEntityFieldType), typeof(DatabaseEntityClass), typeof(DatabaseEntityField),
             typeof(Department), typeof(Dictionary), typeof(DictionaryItem),
             typeof(Role), typeof(RoleAssignMenu),typeof(UserRole),
             typeof(User), typeof(MenuMeta), typeof(Menu),typeof(MenuApiMapping)

@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using SummerBoot.Cache;
 using SummerBoot.Core;
@@ -15,13 +15,15 @@ public class SummerBootAuthorizationHandler : AuthorizationHandler<SummerBootReq
     private readonly IRoleAssignMenuRepository roleAssignMenuRepository;
     private readonly ICache cache;
     private readonly IHttpContextAccessor httpContextAccessor;
+    private readonly IRoleRepository roleRepository;
 
-    public SummerBootAuthorizationHandler(IMenuApiMappingRepository menuApiMappingRepository, IRoleAssignMenuRepository roleAssignMenuRepository, ICache cache, IHttpContextAccessor httpContextAccessor)
+    public SummerBootAuthorizationHandler(IMenuApiMappingRepository menuApiMappingRepository, IRoleAssignMenuRepository roleAssignMenuRepository, ICache cache, IHttpContextAccessor httpContextAccessor, IRoleRepository roleRepository)
     {
         this.menuApiMappingRepository = menuApiMappingRepository;
         this.roleAssignMenuRepository = roleAssignMenuRepository;
         this.cache = cache;
         this.httpContextAccessor = httpContextAccessor;
+        this.roleRepository = roleRepository;
     }
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, SummerBootRequirement requirement)
     {
@@ -55,8 +57,8 @@ public class SummerBootAuthorizationHandler : AuthorizationHandler<SummerBootReq
             }
             else
             {
-                var dbRoleApiDtos = await roleAssignMenuRepository.InnerJoin(new Model.Role.Role(), x => x.T1.RoleId == x.T2.Id)
-                    .InnerJoin(new MenuApiMapping(), x => x.T1.MenuId == x.T3.MenuId)
+                var dbRoleApiDtos = await roleAssignMenuRepository.InnerJoin(roleRepository, x => x.T1.RoleId == x.T2.Id)
+                    .InnerJoin(menuApiMappingRepository, x => x.T1.MenuId == x.T3.MenuId)
                     .Where(x => roleIds.Contains(x.T2.Id))
                     .Select(x => new RoleApiDto() { RoleId = x.T1.RoleId, ApiUrl = x.T3.ApiUrl })
                     .ToListAsync();

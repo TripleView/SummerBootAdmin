@@ -1,28 +1,31 @@
-锘縰sing System.ComponentModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using SummerBoot.Repository;
 
 namespace SummerBootAdmin.Model.User;
-[Description("鐢ㄦ埛")]
+[Description("用户")]
 public class User : BaseEntity
 {
-    [Description("璐﹀彿")]
+    /// <summary>
+    /// 账号
+    /// </summary>
+    [Description("账号")]
     public string Account { get; set; }
-    [Description("濮撳悕")]
+    [Description("姓名")]
     public string Name { get; set; }
 
-    [Description("瑙掕壊鍚嶇О")]
+    [Description("角色名称")]
     [NotMapped]
     public string RoleName { get; set; }
-    [Description("閮ㄩ棬id")]
+    [Description("部门id")]
     public int DepartmentId { get; set; }
-    [Description("瀵嗙爜")]
+    [Description("密码")]
     public string Password { get; set; }
-    [Description("澶村儚")]
+    [Description("头像")]
     public string Avatar { get; set; }
 
     /// <summary>
-    /// 瑙掕壊id鍒楄〃
+    /// 角色id列表
     /// </summary>
     [NotMapped]
     public List<int> RoleIds { get; set; }

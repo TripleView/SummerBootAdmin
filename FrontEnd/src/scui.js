@@ -22,6 +22,7 @@ import scQrCode from "./components/scQrCode";
 import scCodeEditor from "./components/scCodeEditor";
 import scStatusIndicator from "./components/scMini/scStatusIndicator";
 import scTrend from "./components/scMini/scTrend";
+import scDirectorySelect from "./components/scDirectorySelect";
 
 import auth from "./directives/auth";
 import auths from "./directives/auths";
@@ -50,6 +51,7 @@ export default {
 		//注册全局组件
 		app.component("treeSelect", Treeselect);
 		app.component("scTable", scTable);
+		app.component("scDirectorySelect", scDirectorySelect);
 		app.component("scTableColumn", scTableColumn);
 		app.component("scFilterBar", scFilterBar);
 		app.component("scUpload", scUpload);

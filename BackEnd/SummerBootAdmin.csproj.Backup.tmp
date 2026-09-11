@@ -23,6 +23,7 @@
 
 	<ItemGroup>
 		<Folder Include="Dto\Department\" />
+		<Folder Include="Dto\CodeGenerator\" />
 		<Folder Include="Model\Department\" />
 	</ItemGroup>
 

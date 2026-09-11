@@ -1,4 +1,4 @@
-ï»¿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SummerBoot.Cache;
@@ -42,7 +42,7 @@ public class RoleController : ControllerBase
     public async Task<ApiResult<Role>> AddRole([FromBody] AddRoleDto dto)
     {
         var role = mapper.Map<AddRoleDto, Role>(dto);
-        await CheckRole(role, true);
+        await CheckRole(role, false);
         unitOfWork1.BeginTransaction();
         var dbRole = await roleRepository.InsertAsync(role);
 
@@ -58,12 +58,12 @@ public class RoleController : ControllerBase
         var dbRole = await roleRepository.GetAsync(role.Id);
         if (dbRole == null)
         {
-            throw new Exception("è¦ä¿®æ”¹çš„è§’è‰²ä¸å­˜åœ¨");
+            throw new Exception("ÒªĞŞ¸ÄµÄ½ÇÉ«²»´æÔÚ");
         }
 
         if (dbRole.Name == "admin")
         {
-            throw new Exception("ç³»ç»Ÿè§’è‰²æ— æ³•ä¿®æ”¹");
+            throw new Exception("ÏµÍ³½ÇÉ«ÎŞ·¨ĞŞ¸Ä");
         }
 
         await CheckRole(role, true);
@@ -86,7 +86,7 @@ public class RoleController : ControllerBase
         var dbRole = await roleRepository.FirstOrDefaultAsync(query);
         if (dbRole != null)
         {
-            throw new Exception("ç›¸åŒåç§°çš„è§’è‰²å·²å­˜åœ¨");
+            throw new Exception("ÏàÍ¬Ãû³ÆµÄ½ÇÉ«ÒÑ´æÔÚ");
         }
 
         return true;
@@ -97,7 +97,7 @@ public class RoleController : ControllerBase
     {
         if (deleteMenusDto.Ids == null || deleteMenusDto.Ids.Count == 0)
         {
-            throw new Exception("è¦åˆ é™¤çš„idåˆ—è¡¨ä¸èƒ½ä¸ºç©º");
+            throw new Exception("ÒªÉ¾³ıµÄidÁĞ±í²»ÄÜÎª¿Õ");
         }
         unitOfWork1.BeginTransaction();
 
@@ -122,7 +122,7 @@ public class RoleController : ControllerBase
     }
 
     /// <summary>
-    /// ç»™è§’è‰²åˆ†é…æƒé™
+    /// ¸ø½ÇÉ«·ÖÅäÈ¨ÏŞ
     /// </summary>
     /// <param name="dto"></param>
     /// <returns></returns>
@@ -132,13 +132,13 @@ public class RoleController : ControllerBase
     {
         if (dto.RoleIds == null || dto.RoleIds.Count == 0 || dto.MenuIds == null || dto.MenuIds.Count == 0)
         {
-            throw new Exception("å‚æ•°ä¸æ­£ç¡®");
+            throw new Exception("²ÎÊı²»ÕıÈ·");
         }
 
         var adminRole = await roleRepository.FirstOrDefaultAsync(x => dto.RoleIds.Contains(x.Id) && x.Name == "admin");
         if (adminRole != null)
         {
-            throw new Exception("adminä¸ºç³»ç»Ÿè§’è‰²ï¼Œæ— æ³•ä¿®æ”¹");
+            throw new Exception("adminÎªÏµÍ³½ÇÉ«£¬ÎŞ·¨ĞŞ¸Ä");
         }
 
         unitOfWork1.BeginTransaction();
@@ -147,7 +147,7 @@ public class RoleController : ControllerBase
             var dbRole = await roleRepository.GetAsync(dtoRoleId);
             if (dbRole == null)
             {
-                throw new Exception("è§’è‰²ä¸å­˜åœ¨");
+                throw new Exception("½ÇÉ«²»´æÔÚ");
             }
 
             await roleAssignMenuRepository.DeleteAsync(it => it.RoleId == dtoRoleId);
@@ -167,7 +167,7 @@ public class RoleController : ControllerBase
     }
 
     /// <summary>
-    /// æŸ¥çœ‹è§’è‰²æ‹¥æœ‰çš„æƒé™
+    /// ²é¿´½ÇÉ«ÓµÓĞµÄÈ¨ÏŞ
     /// </summary>
     /// <param name="roleId"></param>
     /// <returns></returns>
@@ -177,7 +177,7 @@ public class RoleController : ControllerBase
         var dbRole = await roleRepository.GetAsync(roleId);
         if (dbRole == null)
         {
-            throw new Exception("è§’è‰²ä¸å­˜åœ¨");
+            throw new Exception("½ÇÉ«²»´æÔÚ");
         }
 
         var menuIds = new List<int>();

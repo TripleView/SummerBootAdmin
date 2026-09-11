@@ -1,4 +1,4 @@
-ï»¿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SummerBoot.Core;
@@ -30,7 +30,7 @@ public class DictionaryController : ControllerBase
     }
 
     /// <summary>
-    /// æ·»åŠ å­—å…¸
+    /// Ìí¼Ó×Öµä
     /// </summary>
     /// <param name="dto"></param>
     /// <returns></returns>
@@ -47,7 +47,7 @@ public class DictionaryController : ControllerBase
     }
 
     /// <summary>
-    /// æ·»åŠ å­—å…¸é¡¹
+    /// Ìí¼Ó×ÖµäÏî
     /// </summary>
     /// <param name="dto"></param>
     /// <returns></returns>
@@ -76,7 +76,7 @@ public class DictionaryController : ControllerBase
 
         if (dbModel != null)
         {
-            throw new Exception("ç¼–ç ä¸å…è®¸é‡å¤");
+            throw new Exception("±àÂë²»ÔÊĞíÖØ¸´");
         }
         
         return true;
@@ -89,7 +89,7 @@ public class DictionaryController : ControllerBase
         var dbDictionary = await dictionaryRepository.GetAsync(dictionary.Id);
         if (dbDictionary == null)
         {
-            throw new Exception("è¦ä¿®æ”¹çš„å­—å…¸ä¸å­˜åœ¨");
+            throw new Exception("ÒªĞŞ¸ÄµÄ×Öµä²»´æÔÚ");
         }
 
         await dictionaryRepository.UpdateAsync(dictionary);
@@ -105,7 +105,7 @@ public class DictionaryController : ControllerBase
         var dbDictionaryItem = await dictionaryItemRepository.GetAsync(dictionaryItem.Id);
         if (dbDictionaryItem == null)
         {
-            throw new Exception("è¦ä¿®æ”¹çš„å­—å…¸é¡¹ç›®ä¸å­˜åœ¨");
+            throw new Exception("ÒªĞŞ¸ÄµÄ×ÖµäÏîÄ¿²»´æÔÚ");
         }
 
         await CheckDictionaryItem(dictionaryItem, true);
@@ -127,7 +127,7 @@ public class DictionaryController : ControllerBase
         var dbDictionaryItem = await dictionaryItemRepository.FirstOrDefaultAsync(query);
         if (dbDictionaryItem != null)
         {
-            throw new Exception("ç›¸åŒåç§°çš„å­—å…¸é¡¹å·²å­˜åœ¨");
+            throw new Exception("ÏàÍ¬Ãû³ÆµÄ×ÖµäÏîÒÑ´æÔÚ");
         }
 
         return true;
@@ -138,7 +138,7 @@ public class DictionaryController : ControllerBase
     {
         if (deleteMenusDto.Ids == null || deleteMenusDto.Ids.Count == 0)
         {
-            throw new Exception("è¦åˆ é™¤çš„idåˆ—è¡¨ä¸èƒ½ä¸ºç©º");
+            throw new Exception("ÒªÉ¾³ıµÄidÁĞ±í²»ÄÜÎª¿Õ");
         }
         unitOfWork1.BeginTransaction();
 
@@ -155,7 +155,7 @@ public class DictionaryController : ControllerBase
     {
         if (deleteMenusDto.Ids == null || deleteMenusDto.Ids.Count == 0)
         {
-            throw new Exception("è¦åˆ é™¤çš„idåˆ—è¡¨ä¸èƒ½ä¸ºç©º");
+            throw new Exception("ÒªÉ¾³ıµÄidÁĞ±í²»ÄÜÎª¿Õ");
         }
         unitOfWork1.BeginTransaction();
 
@@ -222,7 +222,7 @@ public class DictionaryController : ControllerBase
     public async Task<ApiResult<List<DictionaryItem>>> GetDictionaryItems([FromQuery] string code)
     {
         var items = await dictionaryItemRepository
-            .InnerJoin(new Dictionary(),x=>x.T1.DictionaryId==x.T2.Id)
+            .InnerJoin(dictionaryRepository,x=>x.T1.DictionaryId==x.T2.Id)
             .Where(x=>x.T2.Code==code)
             .OrderBy(x => x.T1.Index)
             .Select(x=>x.T1)
